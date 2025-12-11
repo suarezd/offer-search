@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  app:
+  extension:
     build: .
-    image: offer-search:latest
+    image: offer-search-extension:latest
     volumes:
       - ./dist:/app/dist
       - ./src:/app/src
@@ -13,12 +13,46 @@ services:
       - ./vite.config.ts:/app/vite.config.ts
     command: npm run build
 
-  dev:
+  extension-dev:
     build: .
-    image: offer-search:latest
+    image: offer-search-extension:latest
     volumes:
       - .:/app
       - /app/node_modules
     ports:
       - "5173:5173"
     command: npm run dev
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: offeruser
+      POSTGRES_PASSWORD: offerpass
+      POSTGRES_DB: offerdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U offeruser -d offerdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://offeruser:offerpass@db:5432/offerdb
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
