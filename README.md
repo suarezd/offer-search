@@ -1,6 +1,6 @@
 # Offer Search
 
-Extension Chrome pour scraper et centraliser les offres d'emploi LinkedIn.
+Extension Chrome/Firefox pour scraper et centraliser les offres d'emploi LinkedIn.
 
 ## Description
 
@@ -35,11 +35,40 @@ Offer Search est une extension Chrome qui permet de récupérer automatiquement 
 
 ### Prérequis
 
+**Option 1 : Installation locale**
 - Node.js (v18+)
-- npm ou yarn
-- Google Chrome ou Chromium
+- npm
+- Google Chrome ou Firefox
 
-### Étapes d'installation
+**Option 2 : Installation avec Docker (recommandé pour Windows)**
+- Docker
+- make (inclus dans le container)
+
+### Installation rapide avec Makefile
+
+Le projet inclut un Makefile pour simplifier les commandes sur tous les OS (Linux, macOS, Windows avec WSL ou Git Bash).
+
+```bash
+# Cloner le repository
+git clone <url-du-repo>
+cd offer-search
+
+# Voir toutes les commandes disponibles
+make help
+
+# Installation locale
+make install
+make build-chrome    # Pour Chrome
+make build-firefox   # Pour Firefox
+
+# Avec Docker (sans installer Node.js)
+make docker-build
+make docker-run
+```
+
+### Installation manuelle (sans Makefile)
+
+#### Installation locale
 
 1. Cloner le repository :
 ```bash
@@ -54,14 +83,39 @@ npm install
 
 3. Compiler l'extension :
 ```bash
+# Pour Chrome
 npm run build
+
+# Pour Firefox
+npm run build
+cp src/manifest.firefox.json dist/manifest.json
 ```
 
-4. Charger l'extension dans Chrome :
-   - Ouvrir Chrome et aller sur `chrome://extensions/`
-   - Activer le **Mode développeur** (toggle en haut à droite)
-   - Cliquer sur **Charger l'extension non empaquetée**
-   - Sélectionner le dossier `dist/`
+#### Installation avec Docker
+
+```bash
+# Build l'image Docker
+docker build -t offer-search .
+
+# Build l'extension
+docker run --rm -v "$(pwd)/dist:/app/dist" offer-search
+
+# Ou avec docker-compose
+docker-compose up app
+```
+
+### Charger l'extension
+
+#### Dans Chrome :
+1. Ouvrir Chrome et aller sur `chrome://extensions/`
+2. Activer le **Mode développeur** (toggle en haut à droite)
+3. Cliquer sur **Charger l'extension non empaquetée**
+4. Sélectionner le dossier `dist/`
+
+#### Dans Firefox :
+1. Ouvrir Firefox et aller sur `about:debugging#/runtime/this-firefox`
+2. Cliquer sur **Charger un module complémentaire temporaire**
+3. Sélectionner le fichier `dist/manifest.json`
 
 ## Utilisation
 
@@ -99,7 +153,22 @@ offer-search/
 
 ## Développement
 
-### Scripts disponibles
+### Commandes Makefile disponibles
+
+```bash
+make help              # Afficher toutes les commandes
+make install           # Installer les dépendances
+make build             # Build pour Chrome
+make build-chrome      # Build pour Chrome (explicite)
+make build-firefox     # Build pour Firefox
+make dev               # Lancer le serveur de développement
+make clean             # Nettoyer les artifacts de build
+make docker-build      # Build l'image Docker
+make docker-run        # Build l'extension dans Docker
+make docker-shell      # Ouvrir un shell dans le container
+```
+
+### Scripts npm disponibles
 
 - `npm run dev` : Mode développement avec Vite
 - `npm run build` : Compilation pour production
@@ -108,9 +177,20 @@ offer-search/
 ### Recharger l'extension pendant le développement
 
 Après chaque modification :
-1. Lancer `npm run build`
-2. Aller sur `chrome://extensions/`
+1. Lancer `make build-chrome` ou `make build-firefox`
+2. Aller sur `chrome://extensions/` ou `about:debugging`
 3. Cliquer sur le bouton de rechargement ↻ de l'extension
+
+### Développement avec Docker
+
+```bash
+# Ouvrir un shell dans le container pour développer
+make docker-shell
+
+# Dans le container
+npm run build
+npm run dev
+```
 
 ## Roadmap
 
