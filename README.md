@@ -4,7 +4,7 @@ Extension Chrome pour scraper et centraliser les offres d'emploi LinkedIn.
 
 ## Description
 
-Offer Search est une extension Chrome qui permet de récupérer automatiquement les offres d'emploi recommandées sur LinkedIn et de les partager dans une base de données commune accessible à tous les utilisateurs de l'extension.
+Offer Search est une extension Chrome qui permet de récupérer automatiquement les offres d'emploi recommandées sur LinkedIn.
 
 ### Objectif du projet
 
