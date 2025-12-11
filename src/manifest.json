@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Offer Search",
+  "version": "1.6.0",
+  "description": "Récupère tes offres LinkedIn",
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Offer Search"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["https://*.linkedin.com/*"],
+  "icons": {
+    "128": "icons/icon-128.png"
+  }
+}
