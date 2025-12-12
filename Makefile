@@ -1,4 +1,4 @@
-.PHONY: help install build build-chrome build-firefox dev clean docker-build docker-run docker-shell test
+.PHONY: help install build build-chrome build-firefox dev clean docker-build docker-run docker-shell test backend-install backend-dev backend-stop api-test
 
 DOCKER_IMAGE := offer-search
 DOCKER_TAG := latest
@@ -8,18 +8,24 @@ help:
 	@echo "=================================="
 	@echo ""
 	@echo "Installation:"
-	@echo "  make install          Install dependencies (local)"
-	@echo "  make docker-build     Build Docker image"
+	@echo "  make install          Install extension dependencies"
+	@echo "  make backend-install  Install backend dependencies"
+	@echo "  make docker-build     Build Docker images"
 	@echo ""
 	@echo "Build:"
-	@echo "  make build            Build extension for Chrome (local)"
-	@echo "  make build-chrome     Build extension for Chrome (local)"
-	@echo "  make build-firefox    Build extension for Firefox (local)"
+	@echo "  make build            Build extension for Chrome"
+	@echo "  make build-chrome     Build extension for Chrome"
+	@echo "  make build-firefox    Build extension for Firefox"
 	@echo "  make docker-run       Build extension using Docker"
 	@echo ""
 	@echo "Development:"
-	@echo "  make dev              Start Vite dev server"
-	@echo "  make docker-shell     Open shell in Docker container"
+	@echo "  make dev              Start extension dev server"
+	@echo "  make backend-dev      Start backend + DB with Docker"
+	@echo "  make backend-stop     Stop backend + DB"
+	@echo "  make docker-shell     Open shell in container"
+	@echo ""
+	@echo "API:"
+	@echo "  make api-test         Test API endpoints"
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean            Remove build artifacts"
@@ -74,6 +80,25 @@ docker-shell:
 		-v "$(PWD):/app" \
 		-w /app \
 		$(DOCKER_IMAGE):$(DOCKER_TAG) /bin/sh
+
+backend-install:
+	@echo "📦 Installing backend dependencies..."
+	cd backend && pip install -r requirements.txt
+
+backend-dev:
+	@echo "🚀 Starting backend + database..."
+	docker-compose up -d db api
+	@echo "✅ Backend running on http://localhost:8000"
+	@echo "✅ Database running on localhost:5432"
+
+backend-stop:
+	@echo "🛑 Stopping backend + database..."
+	docker-compose down
+
+api-test:
+	@echo "🧪 Testing API endpoints..."
+	@curl -s http://localhost:8000/health | jq . || echo "❌ API not running"
+	@curl -s http://localhost:8000/api/jobs/stats | jq . || echo "❌ Stats endpoint failed"
 
 test:
 	@echo "🧪 Running tests..."

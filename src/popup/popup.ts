@@ -1,152 +1,48 @@
+import { JobScraperService } from '../application/services/JobScraperService';
+import { LinkedInScraper } from '../adapters/secondary/scrapers/LinkedInScraper';
+import { ApiJobRepository } from '../adapters/secondary/ApiJobRepository';
+
+const API_URL = "http://localhost:8000";
+
+const repository = new ApiJobRepository(API_URL);
+const linkedInScraper = new LinkedInScraper();
+const scraperService = new JobScraperService([linkedInScraper], repository);
+
 document.addEventListener("DOMContentLoaded", () => {
   const btnScrapeLinkedIn = document.getElementById("scrape-linkedin") as HTMLButtonElement;
   const btnRefresh = document.getElementById("refresh") as HTMLButtonElement;
   const status = document.getElementById("status") as HTMLDivElement;
   const results = document.getElementById("results") as HTMLDivElement;
+  const searchInput = document.getElementById("search") as HTMLInputElement;
+  const locationInput = document.getElementById("location") as HTMLInputElement;
+  const contractSelect = document.getElementById("contract") as HTMLSelectElement;
 
   btnScrapeLinkedIn.onclick = async () => {
     btnScrapeLinkedIn.disabled = true;
     btnScrapeLinkedIn.textContent = "Récupération en cours...";
-    status.textContent = "Analyse de la page LinkedIn...";
+    status.textContent = "Analyse de la page...";
 
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    if (!tab?.id || !(tab.url?.includes("linkedin.com/jobs") || tab.url?.includes("linkedin.com/jobs/collections"))) {
-      status.textContent = "⚠️ Va sur LinkedIn Emplois d'abord (linkedin.com/jobs)";
+    if (!tab?.id || !tab.url) {
+      status.textContent = "⚠️ Impossible de récupérer l'URL de l'onglet actif";
+      btnScrapeLinkedIn.disabled = false;
+      btnScrapeLinkedIn.textContent = "Récupérer mes offres LinkedIn";
+      return;
+    }
+
+    const supportedSources = scraperService.getSupportedSources();
+    const canScrape = scraperService.getAvailableScrapers().some(s => s.canScrape(tab.url!));
+
+    if (!canScrape) {
+      status.textContent = `⚠️ Source non supportée. Sources disponibles: ${supportedSources.join(', ')}`;
       btnScrapeLinkedIn.disabled = false;
       btnScrapeLinkedIn.textContent = "Récupérer mes offres LinkedIn";
       return;
     }
 
     try {
-      const response = await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: () => {
-          interface Job {
-            id: string;
-            title: string;
-            company: string;
-            location: string;
-            url: string;
-            postedDate: string;
-            description: string;
-            scrapedAt: string;
-          }
-
-          const jobs: Job[] = [];
-
-          const cardSelectors = [
-            'li[data-occludable-job-id]',
-            'div.scaffold-layout__list-container li',
-            '.job-card-container',
-            '.jobs-search-results__list-item',
-            'ul.scaffold-layout__list-container > li'
-          ];
-
-          let cards: NodeListOf<Element> | null = null;
-          for (const selector of cardSelectors) {
-            const found = document.querySelectorAll(selector);
-            if (found.length > 0) {
-              cards = found;
-              console.log(`[Offer Search] Utilisation du sélecteur: ${selector}`);
-              break;
-            }
-          }
-
-          if (!cards || cards.length === 0) {
-            console.error('[Offer Search] Aucune carte trouvée avec les sélecteurs disponibles');
-            return [];
-          }
-
-          console.log(`[Offer Search] ${cards.length} cartes d'offres détectées`);
-
-          cards.forEach((card: Element) => {
-            const link = card.querySelector(
-              'a.job-card-container__link, ' +
-              'a.base-card__full-link, ' +
-              'a[href*="/jobs/view/"], ' +
-              'a.job-card-list__title, ' +
-              'a[data-tracking-control-name*="job"], ' +
-              'div.artdeco-entity-lockup a'
-            ) as HTMLAnchorElement | null;
-
-            if (!link) {
-              console.log('[Offer Search] Pas de lien trouvé pour cette carte');
-              return;
-            }
-
-            const titleEl = card.querySelector(
-              'h3.base-search-card__title, ' +
-              '.job-card-list__title strong, ' +
-              'strong.job-card-list__title, ' +
-              '.artdeco-entity-lockup__title, ' +
-              'a[href*="/jobs/view/"] strong, ' +
-              'div[class*="job-card"] strong, ' +
-              'h3, h4'
-            ) as HTMLElement | null;
-
-            if (!titleEl?.innerText.trim()) {
-              console.log('[Offer Search] Pas de titre trouvé pour cette carte');
-              return;
-            }
-
-            const companyEl = card.querySelector(
-              '.base-search-card__subtitle, ' +
-              'h4.base-search-card__subtitle, ' +
-              '.artdeco-entity-lockup__subtitle, ' +
-              '.job-card-container__company-name, ' +
-              'div[class*="subtitle"] span, ' +
-              'a.hidden-nested-link'
-            ) as HTMLElement | null;
-
-            const locationEl = card.querySelector(
-              '.job-search-card__location, ' +
-              '.artdeco-entity-lockup__caption, ' +
-              'span[class*="location"], ' +
-              '.job-card-container__metadata-item'
-            ) as HTMLElement | null;
-
-            const dateEl = card.querySelector(
-              'time, ' +
-              '.job-search-card__listdate, ' +
-              '[class*="job-card"]  time, ' +
-              'span[class*="date"]'
-            ) as HTMLElement | null;
-
-            const descEl = card.querySelector(
-              '.base-search-card__metadata, ' +
-              '.job-card-container__metadata-wrapper, ' +
-              '[class*="snippet"]'
-            ) as HTMLElement | null;
-
-            const occludableId = (card as HTMLElement).dataset?.occludableJobId;
-            const urlIdMatch = link.href.match(/currentJobId=(\d+)/) ||
-                              link.href.match(/jobs\/view\/(\d+)/) ||
-                              link.href.match(/jobPosting:(\d+)/);
-            const jobId = occludableId ||
-                          urlIdMatch?.[1] ||
-                          `job-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-
-            console.log(`[Offer Search] Offre trouvée: ${titleEl.innerText.trim()} - ID: ${jobId}`);
-
-            jobs.push({
-              id: jobId,
-              title: titleEl.innerText.trim(),
-              company: companyEl?.innerText.trim() || "Entreprise non spécifiée",
-              location: locationEl?.innerText.trim() || "Localisation non précisée",
-              url: link.href.split('?')[0],
-              postedDate: dateEl?.getAttribute('datetime') || dateEl?.innerText.trim() || "Date inconnue",
-              description: descEl?.innerText.trim() || "",
-              scrapedAt: new Date().toISOString()
-            });
-          });
-
-          console.log(`[Offer Search] ${jobs.length} offres extraites avec succès`);
-          return jobs;
-        }
-      });
-
-      const jobs = response[0].result || [];
+      const jobs = await scraperService.scrapeCurrentPage(tab.url, tab.id);
 
       if (jobs.length > 0) {
         await chrome.storage.local.set({
@@ -156,27 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         status.textContent = `✓ ${jobs.length} offres récupérées avec succès !`;
-        results.innerHTML = jobs
-          .map(
-            (j: any) => `
-          <div class="offer">
-            <h4><a href="${j.url}" target="_blank">${j.title}</a></h4>
-            <div style="color:#0a66c2;font-weight:500;margin:4px 0;">${j.company}</div>
-            <div class="tags">
-              <span class="tag">📍 ${j.location}</span>
-              <span class="tag">🕒 ${j.postedDate}</span>
-            </div>
-            ${j.description ? `<div style="font-size:12px;color:#666;margin-top:6px;">${j.description}</div>` : ''}
-          </div>
-        `
-          )
-          .join("");
+        displayJobs(jobs);
       } else {
         status.textContent = "⚠️ Aucune offre trouvée – scroll la page pour charger plus d'offres";
       }
     } catch (err) {
       console.error(err);
-      status.textContent = "Erreur – vérifie que tu es sur LinkedIn Jobs";
+      status.textContent = `Erreur – ${(err as Error).message}`;
     }
 
     btnScrapeLinkedIn.disabled = false;
@@ -184,8 +66,81 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   btnRefresh.onclick = async () => {
-    loadStoredOffers();
+    await searchJobsFromAPI();
   };
+
+  searchInput.addEventListener('input', debounce(() => searchJobsFromAPI(), 500));
+  locationInput.addEventListener('input', debounce(() => searchJobsFromAPI(), 500));
+  contractSelect.addEventListener('change', () => searchJobsFromAPI());
+
+  const resetFiltersBtn = document.createElement('button');
+  resetFiltersBtn.textContent = 'Réinitialiser les filtres';
+  resetFiltersBtn.style.cssText = 'background:#6c757d;margin-top:8px;';
+  resetFiltersBtn.onclick = () => {
+    searchInput.value = '';
+    locationInput.value = '';
+    contractSelect.value = '';
+    searchJobsFromAPI();
+  };
+  document.querySelector('.filters')?.appendChild(resetFiltersBtn);
+
+  async function searchJobsFromAPI() {
+    try {
+      status.textContent = "🔍 Recherche en cours...";
+
+      const filters = {
+        search: searchInput.value.trim() || undefined,
+        location: locationInput.value.trim() || undefined,
+        company: undefined,
+        limit: 50,
+        offset: 0
+      };
+
+      const response = await fetch(`${API_URL}/api/jobs/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filters)
+      });
+
+      if (!response.ok) {
+        status.textContent = "⚠️ Erreur de connexion à l'API";
+        loadStoredOffers();
+        return;
+      }
+
+      const jobs = await response.json();
+
+      if (jobs.length > 0) {
+        status.textContent = `✓ ${jobs.length} offres trouvées`;
+        displayJobs(jobs);
+      } else {
+        status.textContent = "Aucune offre trouvée avec ces filtres";
+        results.innerHTML = "";
+      }
+    } catch (err) {
+      console.error('Erreur API:', err);
+      status.textContent = "⚠️ API non disponible - chargement du cache local";
+      loadStoredOffers();
+    }
+  }
+
+  function displayJobs(jobs: any[]) {
+    results.innerHTML = jobs
+      .map(
+        (j: any) => `
+      <div class="offer">
+        <h4><a href="${j.url}" target="_blank">${j.title}</a></h4>
+        <div style="color:#0a66c2;font-weight:500;margin:4px 0;">${j.company}</div>
+        <div class="tags">
+          <span class="tag">📍 ${j.location}</span>
+          <span class="tag">🕒 ${j.posted_date || j.postedDate}</span>
+        </div>
+        ${j.description ? `<div style="font-size:12px;color:#666;margin-top:6px;">${j.description}</div>` : ''}
+      </div>
+    `
+      )
+      .join("");
+  }
 
   async function loadStoredOffers() {
     try {
@@ -193,21 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.offers && Array.isArray(data.offers) && data.offers.length > 0) {
         status.textContent = `📦 ${data.total || data.offers.length} offres en cache (dernière màj: ${data.lastUpdate || 'inconnue'})`;
-        results.innerHTML = data.offers
-          .map(
-            (j: any) => `
-          <div class="offer">
-            <h4><a href="${j.url}" target="_blank">${j.title}</a></h4>
-            <div style="color:#0a66c2;font-weight:500;margin:4px 0;">${j.company}</div>
-            <div class="tags">
-              <span class="tag">📍 ${j.location}</span>
-              <span class="tag">🕒 ${j.postedDate}</span>
-            </div>
-            ${j.description ? `<div style="font-size:12px;color:#666;margin-top:6px;">${j.description}</div>` : ''}
-          </div>
-        `
-          )
-          .join("");
+        displayJobs(data.offers);
       } else {
         status.textContent = "Aucune offre en cache. Va sur LinkedIn Jobs et clique sur 'Récupérer mes offres'";
         results.innerHTML = "";
@@ -218,5 +159,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  loadStoredOffers();
+  function debounce(func: Function, wait: number) {
+    let timeout: number;
+    return (...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = window.setTimeout(() => func(...args), wait);
+    };
+  }
+
+  searchJobsFromAPI();
 });
