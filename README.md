@@ -1,16 +1,27 @@
 # Offer Search
 
-Extension Chrome/Firefox pour scraper et centraliser les offres d'emploi LinkedIn.
+Extension Chrome/Firefox pour scraper et centraliser les offres d'emploi LinkedIn avec backend FastAPI.
+
+## 📚 Documentation
+
+**➡️ [Documentation complète](docs/README.md)** - Architecture, guides, et ADRs
+
+**➡️ [Architecture Decision Records (ADR)](docs/adr/)** - Décisions architecturales documentées
+
+**➡️ [Guide Architecture Hexagonale](docs/HEXAGONAL_ARCHITECTURE_GUIDE.md)** - Tutoriel complet
 
 ## Description
 
-Offer Search est une extension Chrome qui permet de récupérer automatiquement les offres d'emploi recommandées sur LinkedIn.
+Offer Search est une solution complète comprenant :
+- 🔵 **Extension navigateur** (Chrome & Firefox) pour scraper LinkedIn
+- 🟢 **API Backend** FastAPI avec PostgreSQL
+- 📊 **Architecture hexagonale** frontend & backend
 
-### Objectif du projet
+### État du Projet
 
-- **Phase 1 (actuelle)** : Scraping des offres LinkedIn et stockage local
-- **Phase 2 (à venir)** : Backend FastAPI + PostgreSQL pour centraliser les offres de tous les utilisateurs
-- **Phase 3 (future)** : Fonctionnalités avancées (filtres, alertes, statistiques)
+- **Phase 1** ✅ : Extension Chrome/Firefox + scraping LinkedIn
+- **Phase 2** ✅ : Backend FastAPI + PostgreSQL + Architecture hexagonale
+- **Phase 3** ⏳ : Fonctionnalités avancées (filtres, alertes, statistiques)
 
 ## Fonctionnalités actuelles
 

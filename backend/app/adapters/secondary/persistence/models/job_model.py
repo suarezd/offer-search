@@ -1,8 +1,9 @@
 from sqlalchemy import Column, String, DateTime, Text, Index
 from sqlalchemy.sql import func
-from app.database import Base
+from app.adapters.secondary.persistence.database import Base
 
-class Job(Base):
+
+class JobModel(Base):
     __tablename__ = "jobs"
 
     id = Column(String(50), primary_key=True, index=True)
