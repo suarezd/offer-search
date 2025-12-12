@@ -4,7 +4,6 @@ from typing import Optional, List
 
 
 class JobCreateDTO(BaseModel):
-    """DTO for creating a job"""
     id: str
     title: str
     company: str
@@ -17,7 +16,6 @@ class JobCreateDTO(BaseModel):
 
 
 class JobResponseDTO(BaseModel):
-    """DTO for job response"""
     id: str
     title: str
     company: str
@@ -35,12 +33,10 @@ class JobResponseDTO(BaseModel):
 
 
 class JobsSubmitRequestDTO(BaseModel):
-    """DTO for submitting multiple jobs"""
     jobs: List[JobCreateDTO]
 
 
 class JobsSubmitResponseDTO(BaseModel):
-    """DTO for submit jobs response"""
     success: bool
     inserted: int
     duplicates: int
@@ -48,7 +44,6 @@ class JobsSubmitResponseDTO(BaseModel):
 
 
 class JobFilterDTO(BaseModel):
-    """DTO for filtering jobs"""
     search: Optional[str] = None
     location: Optional[str] = None
     company: Optional[str] = None
@@ -58,7 +53,6 @@ class JobFilterDTO(BaseModel):
 
 
 class JobStatsDTO(BaseModel):
-    """DTO for job statistics"""
     total_jobs: int
     total_companies: int
     total_locations: int
