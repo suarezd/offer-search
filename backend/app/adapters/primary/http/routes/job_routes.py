@@ -27,6 +27,7 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
 
 def _job_to_response_dto(job) -> JobResponseDTO:
+    """Convert domain Job entity to response DTO"""
     return JobResponseDTO(
         id=job.id,
         title=job.title,
@@ -47,6 +48,10 @@ async def submit_jobs(
     request: JobsSubmitRequestDTO,
     use_case: SubmitJobsUseCase = Depends(get_submit_jobs_use_case)
 ):
+    """
+    Submit (create) multiple job offers.
+    Handles duplicate detection automatically.
+    """
     try:
         result = await use_case.execute(request.jobs)
         return JobsSubmitResponseDTO(**result)
@@ -64,6 +69,10 @@ async def search_jobs(
     filter_dto: JobFilterDTO,
     use_case: SearchJobsUseCase = Depends(get_search_jobs_use_case)
 ):
+    """
+    Search for jobs with various filters.
+    Supports pagination and multiple search criteria.
+    """
     try:
         jobs = await use_case.execute(filter_dto)
         return [_job_to_response_dto(job) for job in jobs]
@@ -80,6 +89,10 @@ async def search_jobs(
 async def get_stats(
     use_case: GetStatsUseCase = Depends(get_get_stats_use_case)
 ):
+    """
+    Get job statistics.
+    Returns aggregated data about jobs, companies, locations, and sources.
+    """
     try:
         stats = await use_case.execute()
         return stats

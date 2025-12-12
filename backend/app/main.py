@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.adapters.primary.http.routes import job_routes
 from app.adapters.secondary.persistence.database import engine, Base
 
+# Create database tables (synchronous for backward compatibility)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -19,6 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include hexagonal architecture routes
 app.include_router(job_routes.router)
 
 @app.get("/")

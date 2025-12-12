@@ -4,6 +4,10 @@ from app.adapters.secondary.persistence.database import Base
 
 
 class JobModel(Base):
+    """
+    SQLAlchemy ORM model for Job.
+    This is a persistence model, separate from the domain entity.
+    """
     __tablename__ = "jobs"
 
     id = Column(String(50), primary_key=True, index=True)

@@ -30,6 +30,7 @@ AsyncSessionLocal = async_sessionmaker(
 
 
 def get_db():
+    """Synchronous database session (for backward compatibility)"""
     db = SessionLocal()
     try:
         yield db
@@ -38,6 +39,7 @@ def get_db():
 
 
 async def get_async_db():
+    """Asynchronous database session for hexagonal architecture"""
     async with AsyncSessionLocal() as session:
         try:
             yield session

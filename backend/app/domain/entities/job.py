@@ -5,6 +5,10 @@ from typing import Optional
 
 @dataclass
 class Job:
+    """
+    Job domain entity - Pure business logic, no framework dependencies.
+    This represents a job offer in the domain model.
+    """
     id: str
     title: str
     company: str
@@ -18,6 +22,7 @@ class Job:
     updated_at: Optional[datetime] = None
 
     def __post_init__(self):
+        """Validate business rules"""
         if not self.id or not self.id.strip():
             raise ValueError("Job ID cannot be empty")
 
@@ -55,9 +60,11 @@ class Job:
             raise ValueError("Job source cannot exceed 50 characters")
 
     def is_from_linkedin(self) -> bool:
+        """Check if job is from LinkedIn"""
         return self.source.lower() == 'linkedin'
 
     def matches_search(self, search_term: str) -> bool:
+        """Check if job matches a search term"""
         if not search_term:
             return True
 
@@ -69,11 +76,13 @@ class Job:
         )
 
     def matches_location(self, location: str) -> bool:
+        """Check if job matches a location"""
         if not location:
             return True
         return location.lower() in self.location.lower()
 
     def matches_company(self, company: str) -> bool:
+        """Check if job matches a company"""
         if not company:
             return True
         return company.lower() in self.company.lower()
