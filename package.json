@@ -1,11 +1,25 @@
 {
   "name": "offer-search",
+  "version": "2.0.0",
+  "description": "Extension Chrome/Firefox pour centraliser les offres d'emploi LinkedIn avec architecture hexagonale",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/suarezd/offer-search.git"
+  },
+  "keywords": [
+    "chrome-extension",
+    "firefox-addon",
+    "linkedin",
+    "job-scraping",
+    "hexagonal-architecture"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:firefox": "tsc && vite build && node build-firefox.js",
     "preview": "vite preview"
   },
   "devDependencies": {

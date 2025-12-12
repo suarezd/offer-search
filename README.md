@@ -18,10 +18,6 @@ make backend-dev
 # OU build l'extension uniquement
 make build              # Auto-installe les dépendances si nécessaire
 
-# Lancer les tests
-make test-unit         # 36 tests ✅
-make test-integration  # 20 tests ✅
-
 # Arrêter tout
 make stop
 ```
@@ -38,9 +34,9 @@ make stop
 |----------|-------------|
 | **[QUICK_START.md](QUICK_START.md)** | Guide de démarrage Docker-only |
 | **[CHANGELOG.md](CHANGELOG.md)** | Historique des changements |
+| [Documentation complète](docs/README.md) | Architecture, guides, et ADRs |
 | [Guide Architecture Hexagonale](docs/HEXAGONAL_ARCHITECTURE_GUIDE.md) | Tutoriel complet |
 | [Structure du Projet](docs/PROJECT_STRUCTURE.md) | Organisation détaillée |
-| [Tests Backend](backend/README.md) | Guide d'exécution des tests |
 | [ADRs](docs/adr/) | Décisions architecturales |
 
 ---
@@ -52,15 +48,14 @@ Offer Search est une solution complète comprenant :
 - 🔵 **Extension navigateur** (Chrome & Firefox) - Scraping LinkedIn
 - 🟢 **Backend API** - FastAPI avec architecture hexagonale
 - 🗄️ **Base de données** - PostgreSQL avec async (asyncpg)
-- 🧪 **Tests complets** - 56 tests (unitaires + intégration + BDD)
 - 🏗️ **Architecture hexagonale** - Domain, Application, Adapters, Infrastructure
 - ⚡ **Performance** - Async/await (+60% performance)
 
 ### État du Projet
 
 - ✅ **Phase 1** : Extension Chrome/Firefox + Scraping LinkedIn
-- ✅ **Phase 2** : Backend FastAPI + PostgreSQL + Architecture hexagonale + Tests
-- ⏳ **Phase 3** : Fonctionnalités avancées (filtres, alertes, statistiques)
+- ✅ **Phase 2** : Backend FastAPI + PostgreSQL + Architecture hexagonale
+- ⏳ **Phase 3** : Fonctionnalités avancées (tests, filtres, alertes, statistiques)
 
 ---
 
@@ -90,11 +85,6 @@ Offer Search est une solution complète comprenant :
   - Support async avec asyncpg
   - Déduplication automatique
   - Indexation optimisée
-- ✅ **Tests complets**
-  - 36 tests unitaires (Job entity)
-  - 20 tests d'intégration (Repository)
-  - 6 scénarios BDD Gherkin
-- ✅ **CI/CD** - GitHub Actions
 
 ### Fonctionnalités avancées (Phase 3) ⏳
 
@@ -119,9 +109,6 @@ cd offer-search
 
 # Démarrer backend
 make backend-dev
-
-# Tester
-make test-all
 ```
 
 **Avantage** : Aucune installation manuelle de Python, pip, Node.js, npm requise !
@@ -174,18 +161,6 @@ make backend-dev
 4. LinkedIn : Aller sur LinkedIn Jobs
 5. Extension : Cliquer sur l'icône → "Récupérer mes offres"
 
-### Tests
-
-```bash
-make test-unit         # Tests unitaires (36)
-make test-integration  # Tests d'intégration (20)
-make test-functional   # Tests BDD (6 scénarios)
-make test-all          # Tous les tests
-make test-coverage     # Avec rapport HTML
-```
-
----
-
 ## Structure du Projet
 
 ```
@@ -196,10 +171,6 @@ offer-search/
 │   │   ├── application/        # 🎯 Use cases
 │   │   ├── adapters/           # 🔌 HTTP + PostgreSQL
 │   │   └── infrastructure/     # ⚙️  Configuration
-│   ├── tests/                  # 🧪 56 tests
-│   │   ├── unit/               # Tests unitaires (36)
-│   │   ├── integration/        # Tests d'intégration (20)
-│   │   └── functional/         # Tests BDD (6 scénarios)
 │   ├── Dockerfile
 │   └── requirements.txt
 │
@@ -238,7 +209,6 @@ offer-search/
 - **SQLAlchemy 2.0** - ORM async
 - **asyncpg** - Driver PostgreSQL async (+60% perf)
 - **Pydantic** - Validation
-- **pytest** - Tests
 - **Docker** - Conteneurisation
 
 ### Frontend
@@ -262,47 +232,6 @@ make backend-stop      # Arrêter backend + DB
 make backend-install   # Infos installation (Docker/local)
 ```
 
-### Tests
-
-```bash
-make test-unit         # Tests unitaires (36 tests)
-make test-integration  # Tests d'intégration (20 tests)
-make test-functional   # Tests BDD (6 scénarios)
-make test-all          # Tous les tests
-make test-coverage     # Tests + rapport HTML
-make test-ci           # Tests pour CI (XML + JUnit)
-```
-
-### Extension
-
-```bash
-make install           # Installer dépendances npm (optionnel - auto-installé)
-make build             # Build pour Chrome (auto-installe deps si besoin)
-make build-chrome      # Build Chrome (auto-installe deps si besoin)
-make build-firefox     # Build Firefox (auto-installe deps si besoin)
-make dev               # Mode développement (auto-installe deps si besoin)
-make clean             # Nettoyer build et node_modules
-```
-
-**💡 Astuce** : Les commandes `build`, `build-chrome`, `build-firefox`, `dev`, et `start` vérifient automatiquement si `node_modules` existe et installent les dépendances si nécessaire.
-
-### Docker
-
-```bash
-make docker-build      # Build image Docker
-make docker-run        # Build extension via Docker
-make docker-shell      # Shell dans container
-```
-
-### Autres
-
-```bash
-make help              # Toutes les commandes
-make api-test          # Test endpoints API
-```
-
----
-
 ## Développement
 
 ### Workflow Backend
@@ -313,11 +242,6 @@ make backend-dev
 
 # 2. Modifier le code dans backend/app/
 
-# 3. Tests auto-rechargés (--reload)
-make test-unit
-
-# 4. Avant commit
-make test-all
 ```
 
 ### Workflow Extension
@@ -351,59 +275,6 @@ make backend-rebuild
 # 3. Redémarrer
 make backend-dev
 ```
-
----
-
-## Tests
-
-### Statistiques
-
-| Type | Nombre | Durée | Couverture |
-|------|--------|-------|------------|
-| Unitaires | 36 | 0.25s | Job entity |
-| Intégration | 20 | 0.80s | Repository |
-| BDD | 6 scénarios | - | API endpoints |
-| **Total** | **56+** | **~1s** | **3 layers** |
-
-### Exécution
-
-```bash
-# Via Makefile (Docker)
-make test-unit
-make test-integration
-make test-all
-
-# Via pytest direct
-cd backend
-python -m pytest -m unit -v
-python -m pytest -m integration -v
-```
-
-### Couverture
-
-```bash
-make test-coverage
-# Génère backend/htmlcov/index.html
-```
-
----
-
-## CI/CD
-
-GitHub Actions configuré dans [.github/workflows/tests.yml](.github/workflows/tests.yml)
-
-**Déclencheurs** :
-- Push sur `master`, `develop`, `feat/*`
-- Pull requests vers `master`, `develop`
-
-**Pipeline** :
-1. Setup Python 3.11
-2. PostgreSQL service
-3. Install dependencies
-4. Run unit tests
-5. Run integration tests
-6. Generate coverage
-7. Upload to Codecov
 
 ---
 
@@ -465,13 +336,11 @@ GitHub Actions configuré dans [.github/workflows/tests.yml](.github/workflows/t
 - [x] Backend FastAPI
 - [x] PostgreSQL avec async
 - [x] Architecture hexagonale
-- [x] Tests complets (56)
 - [x] CI/CD GitHub Actions
 - [x] Documentation complète
 
 ### ⏳ En cours / À venir
 
-- [ ] Tests fonctionnels BDD (step definitions)
 - [ ] Frontend visualisation
 - [ ] Filtres avancés
 - [ ] Système d'alertes
@@ -483,7 +352,7 @@ GitHub Actions configuré dans [.github/workflows/tests.yml](.github/workflows/t
 
 ## Contribution
 
-Les contributions sont les bienvenues !
+Les contributions sont les bienvenues ! Veuillez lire notre [Code de Conduite](CODE_OF_CONDUCT.md) avant de contribuer.
 
 1. Fork le projet
 2. Créer une branche (`git checkout -b feat/amazing-feature`)
@@ -491,24 +360,21 @@ Les contributions sont les bienvenues !
 4. Push (`git push origin feat/amazing-feature`)
 5. Ouvrir une Pull Request
 
-**Avant de soumettre** :
-```bash
-make test-all  # Tous les tests doivent passer
-```
+Pour plus de détails, consultez [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
 ## Licence
 
-À définir
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ---
 
 ## Support
 
 - **Documentation** : [docs/](docs/)
-- **Issues** : GitHub Issues
-- **Tests** : `make test-all`
+- **Issues** : [GitHub Issues](https://github.com/suarezd/offer-search/issues)
+- **Sécurité** : Pour signaler une vulnérabilité, consultez [SECURITY.md](SECURITY.md)
 
 ---
 
