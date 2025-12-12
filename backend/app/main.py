@@ -1,14 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import jobs
-from app.database import engine, Base
+from app.adapters.primary.http.routes import job_routes
+from app.adapters.secondary.persistence.database import engine, Base
 
+# Create database tables (synchronous for backward compatibility)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Offer Search API",
-    description="API pour centraliser les offres d'emploi LinkedIn",
-    version="1.0.0"
+    description="API pour centraliser les offres d'emploi LinkedIn - Hexagonal Architecture",
+    version="2.0.0"
 )
 
 app.add_middleware(
@@ -19,7 +20,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(jobs.router)
+# Include hexagonal architecture routes
+app.include_router(job_routes.router)
 
 @app.get("/")
 def root():
