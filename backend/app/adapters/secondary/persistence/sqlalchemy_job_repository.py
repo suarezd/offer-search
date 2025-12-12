@@ -14,17 +14,10 @@ from app.adapters.secondary.persistence.models.job_model import JobModel
 
 
 class SQLAlchemyJobRepository(IJobRepository):
-    """
-    SQLAlchemy implementation of the IJobRepository port.
-    This adapter handles PostgreSQL persistence using SQLAlchemy ORM.
-    Can be easily replaced with MongoDB, DynamoDB, or other database implementations.
-    """
-
     def __init__(self, session: AsyncSession):
         self.session = session
 
     def _to_domain(self, model: JobModel) -> Job:
-        """Convert SQLAlchemy model to domain entity"""
         return Job(
             id=model.id,
             title=model.title,
@@ -40,7 +33,6 @@ class SQLAlchemyJobRepository(IJobRepository):
         )
 
     def _to_model(self, entity: Job) -> JobModel:
-        """Convert domain entity to SQLAlchemy model"""
         return JobModel(
             id=entity.id,
             title=entity.title,
@@ -56,9 +48,7 @@ class SQLAlchemyJobRepository(IJobRepository):
         )
 
     async def save(self, job: Job) -> Job:
-        """Save a single job"""
         try:
-            # Check if job already exists
             existing = await self.exists_by_id(job.id)
             if existing:
                 raise DuplicateJobError(job.id)
@@ -80,7 +70,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             raise RepositoryError(f"Error saving job: {str(e)}", e)
 
     async def save_many(self, jobs: List[Job]) -> Dict[str, Any]:
-        """Save multiple jobs with duplicate handling"""
         inserted = 0
         duplicates = 0
         total = len(jobs)
@@ -88,7 +77,6 @@ class SQLAlchemyJobRepository(IJobRepository):
         try:
             for job in jobs:
                 try:
-                    # Check if job already exists
                     existing = await self.exists_by_id(job.id)
                     if existing:
                         duplicates += 1
@@ -117,7 +105,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             raise RepositoryError(f"Error saving jobs: {str(e)}", e)
 
     async def find_by_id(self, job_id: str) -> Optional[Job]:
-        """Find a job by ID"""
         try:
             stmt = select(JobModel).where(JobModel.id == job_id)
             result = await self.session.execute(stmt)
@@ -129,7 +116,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             raise RepositoryError(f"Error finding job: {str(e)}", e)
 
     async def exists_by_id(self, job_id: str) -> bool:
-        """Check if a job exists"""
         try:
             stmt = select(JobModel.id).where(JobModel.id == job_id)
             result = await self.session.execute(stmt)
@@ -147,11 +133,9 @@ class SQLAlchemyJobRepository(IJobRepository):
         limit: int = 50,
         offset: int = 0
     ) -> List[Job]:
-        """Search for jobs with filters"""
         try:
             stmt = select(JobModel)
 
-            # Apply filters
             if search_term:
                 search_pattern = f"%{search_term}%"
                 stmt = stmt.where(
@@ -169,10 +153,7 @@ class SQLAlchemyJobRepository(IJobRepository):
             if source:
                 stmt = stmt.where(JobModel.source == source)
 
-            # Apply pagination
             stmt = stmt.limit(limit).offset(offset)
-
-            # Execute query
             result = await self.session.execute(stmt)
             models = result.scalars().all()
 
@@ -182,7 +163,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             raise RepositoryError(f"Error searching jobs: {str(e)}", e)
 
     async def count_total(self) -> int:
-        """Count total jobs"""
         try:
             stmt = select(func.count(JobModel.id))
             result = await self.session.execute(stmt)
@@ -192,7 +172,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             raise RepositoryError(f"Error counting jobs: {str(e)}", e)
 
     async def count_distinct_companies(self) -> int:
-        """Count distinct companies"""
         try:
             stmt = select(func.count(distinct(JobModel.company)))
             result = await self.session.execute(stmt)
@@ -202,7 +181,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             raise RepositoryError(f"Error counting companies: {str(e)}", e)
 
     async def count_distinct_locations(self) -> int:
-        """Count distinct locations"""
         try:
             stmt = select(func.count(distinct(JobModel.location)))
             result = await self.session.execute(stmt)
@@ -212,7 +190,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             raise RepositoryError(f"Error counting locations: {str(e)}", e)
 
     async def count_by_source(self) -> Dict[str, int]:
-        """Count jobs by source"""
         try:
             stmt = select(
                 JobModel.source,
@@ -228,7 +205,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             raise RepositoryError(f"Error counting by source: {str(e)}", e)
 
     async def delete_by_id(self, job_id: str) -> bool:
-        """Delete a job by ID"""
         try:
             stmt = select(JobModel).where(JobModel.id == job_id)
             result = await self.session.execute(stmt)
@@ -246,7 +222,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             raise RepositoryError(f"Error deleting job: {str(e)}", e)
 
     async def update(self, job: Job) -> Job:
-        """Update an existing job"""
         try:
             stmt = select(JobModel).where(JobModel.id == job.id)
             result = await self.session.execute(stmt)
@@ -255,7 +230,6 @@ class SQLAlchemyJobRepository(IJobRepository):
             if not model:
                 raise JobNotFoundError(job.id)
 
-            # Update fields
             model.title = job.title
             model.company = job.company
             model.location = job.location
