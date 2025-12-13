@@ -72,6 +72,7 @@ class SQLAlchemyJobRepository(IJobRepository):
     async def save_many(self, jobs: List[Job]) -> Dict[str, Any]:
         inserted = 0
         duplicates = 0
+        duplicate_ids = []
         total = len(jobs)
 
         try:
@@ -80,6 +81,7 @@ class SQLAlchemyJobRepository(IJobRepository):
                     existing = await self.exists_by_id(job.id)
                     if existing:
                         duplicates += 1
+                        duplicate_ids.append(job.id)
                         continue
 
                     model = self._to_model(job)
@@ -88,6 +90,7 @@ class SQLAlchemyJobRepository(IJobRepository):
 
                 except IntegrityError:
                     duplicates += 1
+                    duplicate_ids.append(job.id)
                     await self.session.rollback()
                     continue
 
@@ -97,6 +100,8 @@ class SQLAlchemyJobRepository(IJobRepository):
             return {
                 "inserted": inserted,
                 "duplicates": duplicates,
+                "duplicate_ids": duplicate_ids,
+                "failed": 0,
                 "total": total
             }
 
