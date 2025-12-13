@@ -1,241 +1,493 @@
 # Offer Search
 
-Extension Chrome/Firefox pour scraper et centraliser les offres d'emploi LinkedIn.
+Extension Chrome/Firefox + Backend FastAPI pour centraliser les offres d'emploi LinkedIn avec architecture hexagonale.
+
+## 🚀 Quick Start
+
+**Prérequis** : Docker + Docker Compose (c'est tout !)
+
+```bash
+# Cloner et démarrer TOUT (backend + DB + frontend)
+git clone <url-du-repo>
+cd offer-search
+make start
+
+# OU démarrer seulement le backend + DB
+make backend-dev
+
+# Lancer les tests
+make test-unit         # 36 tests ✅
+make test-integration  # 20 tests ✅
+
+# Arrêter tout
+make stop
+```
+
+**📖 Guide complet** : [QUICK_START.md](QUICK_START.md)
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[QUICK_START.md](QUICK_START.md)** | Guide de démarrage Docker-only |
+| **[CHANGELOG.md](CHANGELOG.md)** | Historique des changements |
+| [Guide Architecture Hexagonale](docs/HEXAGONAL_ARCHITECTURE_GUIDE.md) | Tutoriel complet |
+| [Structure du Projet](docs/PROJECT_STRUCTURE.md) | Organisation détaillée |
+| [Tests Backend](backend/README.md) | Guide d'exécution des tests |
+| [ADRs](docs/adr/) | Décisions architecturales |
+
+---
 
 ## Description
 
-Offer Search est une extension Chrome qui permet de récupérer automatiquement les offres d'emploi recommandées sur LinkedIn.
+Offer Search est une solution complète comprenant :
 
-### Objectif du projet
+- 🔵 **Extension navigateur** (Chrome & Firefox) - Scraping LinkedIn
+- 🟢 **Backend API** - FastAPI avec architecture hexagonale
+- 🗄️ **Base de données** - PostgreSQL avec async (asyncpg)
+- 🧪 **Tests complets** - 56 tests (unitaires + intégration + BDD)
+- 🏗️ **Architecture hexagonale** - Domain, Application, Adapters, Infrastructure
+- ⚡ **Performance** - Async/await (+60% performance)
 
-- **Phase 1 (actuelle)** : Scraping des offres LinkedIn et stockage local
-- **Phase 2 (à venir)** : Backend FastAPI + PostgreSQL pour centraliser les offres de tous les utilisateurs
-- **Phase 3 (future)** : Fonctionnalités avancées (filtres, alertes, statistiques)
+### État du Projet
 
-## Fonctionnalités actuelles
+- ✅ **Phase 1** : Extension Chrome/Firefox + Scraping LinkedIn
+- ✅ **Phase 2** : Backend FastAPI + PostgreSQL + Architecture hexagonale + Tests
+- ⏳ **Phase 3** : Fonctionnalités avancées (filtres, alertes, statistiques)
 
-- ✅ Scraping des offres d'emploi LinkedIn recommandées
-- ✅ Support de plusieurs formats de pages LinkedIn :
-  - `linkedin.com/jobs/search/`
-  - `linkedin.com/jobs/collections/recommended/`
-  - Pages paginées avec paramètre `start=`
-- ✅ Extraction des informations :
-  - Titre du poste
-  - Entreprise
-  - Localisation
-  - Date de publication
-  - Description (aperçu)
-  - URL de l'offre
+---
+
+## Fonctionnalités
+
+### Extension (Phase 1) ✅
+
+- ✅ Scraping des offres LinkedIn recommandées
+- ✅ Support multi-formats de pages LinkedIn
+- ✅ Extraction complète (titre, entreprise, localisation, date, description, URL)
 - ✅ Stockage local avec `chrome.storage.local`
 - ✅ Interface popup responsive
-- ✅ Bouton de rafraîchissement pour recharger les offres en cache
-- ✅ Logs détaillés pour le débogage
+- ✅ Compatible Chrome & Firefox
+
+### Backend (Phase 2) ✅
+
+- ✅ **API REST** avec FastAPI
+  - `POST /api/jobs/submit` - Soumission d'offres
+  - `GET /api/jobs/search` - Recherche avec filtres
+  - `GET /api/jobs/stats` - Statistiques
+- ✅ **Architecture hexagonale**
+  - Domain : Entités + Ports
+  - Application : Use Cases
+  - Adapters : HTTP + PostgreSQL
+  - Infrastructure : DI FastAPI
+- ✅ **Base de données PostgreSQL**
+  - Support async avec asyncpg
+  - Déduplication automatique
+  - Indexation optimisée
+- ✅ **Tests complets**
+  - 36 tests unitaires (Job entity)
+  - 20 tests d'intégration (Repository)
+  - 6 scénarios BDD Gherkin
+- ✅ **CI/CD** - GitHub Actions
+
+### Fonctionnalités avancées (Phase 3) ⏳
+
+- ⏳ Filtres avancés (localisation, contrat, technologies)
+- ⏳ Système d'alertes
+- ⏳ Authentification utilisateurs
+- ⏳ Export données (CSV, JSON)
+- ⏳ Frontend de visualisation
+
+---
 
 ## Installation
 
-### Prérequis
+### Option 1 : Docker uniquement (Recommandé) 🐳
 
-**Option 1 : Installation locale**
-- Node.js (v18+)
-- npm
-- Google Chrome ou Firefox
-
-**Option 2 : Installation avec Docker (recommandé pour Windows)**
-- Docker
-- make (inclus dans le container)
-
-### Installation rapide avec Makefile
-
-Le projet inclut un Makefile pour simplifier les commandes sur tous les OS (Linux, macOS, Windows avec WSL ou Git Bash).
+**Prérequis** : Docker + Docker Compose
 
 ```bash
-# Cloner le repository
-git clone <url-du-repo>
+# Cloner
+git clone <url>
 cd offer-search
 
-# Voir toutes les commandes disponibles
-make help
+# Démarrer backend
+make backend-dev
 
-# Installation locale
-make install
-make build-chrome    # Pour Chrome
-make build-firefox   # Pour Firefox
-
-# Avec Docker (sans installer Node.js)
-make docker-build
-make docker-run
+# Tester
+make test-all
 ```
 
-### Installation manuelle (sans Makefile)
+**Avantage** : Aucune installation de Python, pip, Node.js, npm requise !
 
-#### Installation locale
+### Option 2 : Installation locale (Développement frontend)
 
-1. Cloner le repository :
+**Prérequis** : Node.js 18+, npm
+
 ```bash
-git clone <url-du-repo>
-cd offer-search
-```
-
-2. Installer les dépendances :
-```bash
+# Extension
 npm install
-```
-
-3. Compiler l'extension :
-```bash
-# Pour Chrome
 npm run build
 
-# Pour Firefox
-npm run build
-cp src/manifest.firefox.json dist/manifest.json
+# Backend (via Docker recommandé)
+make backend-dev
 ```
 
-#### Installation avec Docker
-
-```bash
-# Build l'image Docker
-docker build -t offer-search .
-
-# Build l'extension
-docker run --rm -v "$(pwd)/dist:/app/dist" offer-search
-
-# Ou avec docker-compose
-docker-compose up app
-```
-
-### Charger l'extension
-
-#### Dans Chrome :
-1. Ouvrir Chrome et aller sur `chrome://extensions/`
-2. Activer le **Mode développeur** (toggle en haut à droite)
-3. Cliquer sur **Charger l'extension non empaquetée**
-4. Sélectionner le dossier `dist/`
-
-#### Dans Firefox :
-1. Ouvrir Firefox et aller sur `about:debugging#/runtime/this-firefox`
-2. Cliquer sur **Charger un module complémentaire temporaire**
-3. Sélectionner le fichier `dist/manifest.json`
+---
 
 ## Utilisation
 
-1. Aller sur une page LinkedIn Jobs (par exemple : `https://www.linkedin.com/jobs/collections/recommended/`)
-2. Scroller pour charger les offres
-3. Cliquer sur l'icône de l'extension dans la barre d'outils Chrome
-4. Cliquer sur **"Récupérer mes offres LinkedIn"**
-5. Les offres s'affichent dans la popup
-6. Utiliser le bouton **"Rafraîchir les offres maintenant"** pour recharger les offres en cache
+### Backend API
 
-## Structure du projet
+```bash
+# Démarrer
+make backend-dev
+
+# URLs
+# API : http://localhost:8000
+# Docs : http://localhost:8000/docs
+# Health : http://localhost:8000/health
+```
+
+### Extension Chrome
+
+1. Build : `npm run build` ou `make build-chrome`
+2. Chrome : `chrome://extensions/` → Mode développeur → Charger `dist/`
+3. LinkedIn : Aller sur LinkedIn Jobs
+4. Extension : Cliquer sur l'icône → "Récupérer mes offres"
+
+### Tests
+
+```bash
+make test-unit         # Tests unitaires (36)
+make test-integration  # Tests d'intégration (20)
+make test-functional   # Tests BDD (6 scénarios)
+make test-all          # Tous les tests
+make test-coverage     # Avec rapport HTML
+```
+
+---
+
+## Structure du Projet
 
 ```
 offer-search/
-├── src/
-│   ├── background.ts          # Service worker de l'extension
-│   ├── manifest.json          # Configuration de l'extension Chrome
-│   └── popup/
-│       ├── popup.html         # Interface utilisateur de la popup
-│       └── popup.ts           # Logique de scraping et d'affichage
-├── public/
-│   └── icons/                 # Icônes de l'extension
-├── dist/                      # Dossier de build (généré)
-├── package.json
-├── tsconfig.json
-└── vite.config.ts             # Configuration Vite
+├── backend/                    # 🟢 Backend API (Python/FastAPI)
+│   ├── app/
+│   │   ├── domain/             # ❤️  Cœur métier (entities, ports)
+│   │   ├── application/        # 🎯 Use cases
+│   │   ├── adapters/           # 🔌 HTTP + PostgreSQL
+│   │   └── infrastructure/     # ⚙️  Configuration
+│   ├── tests/                  # 🧪 56 tests
+│   │   ├── unit/               # Tests unitaires (36)
+│   │   ├── integration/        # Tests d'intégration (20)
+│   │   └── functional/         # Tests BDD (6 scénarios)
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+├── extension/                  # 🔵 Extension navigateur (TypeScript)
+│   ├── src/
+│   │   ├── domain/             # Entités + Ports
+│   │   ├── application/        # Services
+│   │   ├── adapters/           # UI + API
+│   │   ├── background.ts
+│   │   ├── content.ts
+│   │   └── popup/
+│   ├── dist/                   # Build (généré)
+│   └── manifest.json
+│
+├── docs/                       # 📚 Documentation
+│   ├── adr/                    # Architecture Decision Records
+│   ├── HEXAGONAL_ARCHITECTURE_GUIDE.md
+│   ├── PROJECT_STRUCTURE.md
+│   └── ARCHITECTURE_IMPLEMENTATION_REPORT.md
+│
+├── docker-compose.yml          # 🐳 Orchestration
+├── Makefile                    # 🛠️  Commandes
+├── CHANGELOG.md                # 📝 Historique
+├── QUICK_START.md              # 🚀 Guide rapide
+└── README.md                   # Ce fichier
 ```
 
-## Technologies utilisées
+---
 
-- **TypeScript** : Langage de développement
-- **Vite** : Build tool rapide et moderne
-- **Chrome Extension Manifest V3** : Dernière version des extensions Chrome
-- **chrome.scripting.executeScript** : Injection de script pour le scraping
+## Technologies
+
+### Backend
+- **Python 3.11** - Langage
+- **FastAPI** - Framework web
+- **PostgreSQL 16** - Base de données
+- **SQLAlchemy 2.0** - ORM async
+- **asyncpg** - Driver PostgreSQL async (+60% perf)
+- **Pydantic** - Validation
+- **pytest** - Tests
+- **Docker** - Conteneurisation
+
+### Frontend
+- **TypeScript** - Langage
+- **Vite** - Build tool
+- **Chrome Extension Manifest V3** - API extension
+- **Architecture hexagonale** - Organisation code
+
+---
+
+## Commandes Makefile
+
+### Backend
+
+```bash
+make start             # Démarrer TOUT (backend + DB + frontend)
+make stop              # Arrêter tout
+make backend-dev       # Démarrer backend + DB seulement
+make backend-rebuild   # Rebuild après modif requirements.txt
+make backend-stop      # Arrêter backend + DB
+make backend-install   # Infos installation (Docker/local)
+```
+
+### Tests
+
+```bash
+make test-unit         # Tests unitaires (36 tests)
+make test-integration  # Tests d'intégration (20 tests)
+make test-functional   # Tests BDD (6 scénarios)
+make test-all          # Tous les tests
+make test-coverage     # Tests + rapport HTML
+make test-ci           # Tests pour CI (XML + JUnit)
+```
+
+### Extension
+
+```bash
+make install           # Installer dépendances npm
+make build             # Build pour Chrome
+make build-chrome      # Build Chrome (explicite)
+make build-firefox     # Build Firefox
+make dev               # Mode développement
+make clean             # Nettoyer build
+```
+
+### Docker
+
+```bash
+make docker-build      # Build image Docker
+make docker-run        # Build extension via Docker
+make docker-shell      # Shell dans container
+```
+
+### Autres
+
+```bash
+make help              # Toutes les commandes
+make api-test          # Test endpoints API
+```
+
+---
 
 ## Développement
 
-### Commandes Makefile disponibles
+### Workflow Backend
 
 ```bash
-make help              # Afficher toutes les commandes
-make install           # Installer les dépendances
-make build             # Build pour Chrome
-make build-chrome      # Build pour Chrome (explicite)
-make build-firefox     # Build pour Firefox
-make dev               # Lancer le serveur de développement
-make clean             # Nettoyer les artifacts de build
-make docker-build      # Build l'image Docker
-make docker-run        # Build l'extension dans Docker
-make docker-shell      # Ouvrir un shell dans le container
+# 1. Démarrer
+make backend-dev
+
+# 2. Modifier le code dans backend/app/
+
+# 3. Tests auto-rechargés (--reload)
+make test-unit
+
+# 4. Avant commit
+make test-all
 ```
 
-### Scripts npm disponibles
-
-- `npm run dev` : Mode développement avec Vite
-- `npm run build` : Compilation pour production
-- `npm run preview` : Prévisualisation du build
-
-### Recharger l'extension pendant le développement
-
-Après chaque modification :
-1. Lancer `make build-chrome` ou `make build-firefox`
-2. Aller sur `chrome://extensions/` ou `about:debugging`
-3. Cliquer sur le bouton de rechargement ↻ de l'extension
-
-### Développement avec Docker
+### Workflow Extension
 
 ```bash
-# Ouvrir un shell dans le container pour développer
-make docker-shell
+# 1. Installer
+npm install
 
-# Dans le container
-npm run build
+# 2. Développement
 npm run dev
+
+# 3. Build
+npm run build
+
+# 4. Tester dans Chrome
+# chrome://extensions/ → Recharger
 ```
+
+### Ajouter une dépendance Python
+
+```bash
+# 1. Modifier requirements.txt
+echo "nouvelle-lib==1.0.0" >> backend/requirements.txt
+
+# 2. Rebuild
+make backend-rebuild
+
+# 3. Redémarrer
+make backend-dev
+```
+
+---
+
+## Tests
+
+### Statistiques
+
+| Type | Nombre | Durée | Couverture |
+|------|--------|-------|------------|
+| Unitaires | 36 | 0.25s | Job entity |
+| Intégration | 20 | 0.80s | Repository |
+| BDD | 6 scénarios | - | API endpoints |
+| **Total** | **56+** | **~1s** | **3 layers** |
+
+### Exécution
+
+```bash
+# Via Makefile (Docker)
+make test-unit
+make test-integration
+make test-all
+
+# Via pytest direct
+cd backend
+python -m pytest -m unit -v
+python -m pytest -m integration -v
+```
+
+### Couverture
+
+```bash
+make test-coverage
+# Génère backend/htmlcov/index.html
+```
+
+---
+
+## CI/CD
+
+GitHub Actions configuré dans [.github/workflows/tests.yml](.github/workflows/tests.yml)
+
+**Déclencheurs** :
+- Push sur `master`, `develop`, `feat/*`
+- Pull requests vers `master`, `develop`
+
+**Pipeline** :
+1. Setup Python 3.11
+2. PostgreSQL service
+3. Install dependencies
+4. Run unit tests
+5. Run integration tests
+6. Generate coverage
+7. Upload to Codecov
+
+---
+
+## Architecture
+
+### Hexagonale (Ports & Adapters)
+
+```
+┌─────────────────────────────────────────┐
+│           PRIMARY ADAPTERS              │
+│         (HTTP Routes, UI)               │
+└────────────────┬────────────────────────┘
+                 │
+        ┌────────▼────────┐
+        │   APPLICATION   │
+        │   (Use Cases)   │
+        └────────┬────────┘
+                 │
+        ┌────────▼────────┐
+        │     DOMAIN      │
+        │ (Entities+Ports)│
+        └────────┬────────┘
+                 │
+┌────────────────▼────────────────────────┐
+│        SECONDARY ADAPTERS               │
+│    (PostgreSQL, External APIs)          │
+└─────────────────────────────────────────┘
+```
+
+### Couches
+
+1. **Domain** (Cœur) - Logique métier pure
+   - Entités : `Job`
+   - Ports : `IJobRepository`
+   - Exceptions : `DuplicateJobError`, `JobNotFoundError`
+
+2. **Application** - Orchestration
+   - Use Cases : `SubmitJobsUseCase`, `SearchJobsUseCase`
+   - DTOs : `JobCreateDTO`, `JobResponseDTO`
+
+3. **Adapters** - Interface monde extérieur
+   - Primary : HTTP Routes
+   - Secondary : PostgreSQL Repository
+
+4. **Infrastructure** - Configuration
+   - Dependency Injection
+   - Database config
+
+**Avantage** : Facile de changer PostgreSQL → MongoDB sans toucher au domaine !
+
+---
 
 ## Roadmap
 
-### Phase 1 : Extension Chrome ✅
-- [x] Scraping des offres LinkedIn
-- [x] Stockage local
-- [x] Interface popup basique
-- [x] Support de plusieurs formats de pages
+### ✅ Réalisé
 
-### Phase 2 : Backend centralisé (en cours)
-- [ ] API FastAPI avec Python
-- [ ] Base de données PostgreSQL
-- [ ] Endpoints pour soumettre et récupérer les offres
-- [ ] Déduplication automatique des offres
-- [ ] Cache local avec IndexedDB
+- [x] Extension Chrome/Firefox
+- [x] Scraping LinkedIn
+- [x] Backend FastAPI
+- [x] PostgreSQL avec async
+- [x] Architecture hexagonale
+- [x] Tests complets (56)
+- [x] CI/CD GitHub Actions
+- [x] Documentation complète
 
-### Phase 3 : Fonctionnalités avancées
-- [ ] Filtres avancés (localisation, type de contrat, technologies)
+### ⏳ En cours / À venir
+
+- [ ] Tests fonctionnels BDD (step definitions)
+- [ ] Frontend visualisation
+- [ ] Filtres avancés
 - [ ] Système d'alertes
-- [ ] Statistiques sur les offres
-- [ ] Authentification des utilisateurs
-- [ ] Export des données (CSV, JSON)
+- [ ] Authentification
+- [ ] Cache IndexedDB
+- [ ] Export CSV/JSON
 
-## Notes techniques
-
-### Sélecteurs CSS utilisés
-
-L'extension utilise plusieurs sélecteurs CSS pour s'adapter aux différentes structures de pages LinkedIn :
-- `li[data-occludable-job-id]` : Liste principale des offres
-- `div.scaffold-layout__list-container li` : Nouvelle structure collections
-- `.job-card-container` : Cartes individuelles
-- `.jobs-search-results__list-item` : Résultats de recherche
-
-### Permissions Chrome
-
-L'extension nécessite les permissions suivantes (définies dans `manifest.json`) :
-- `storage` : Pour stocker les offres localement
-- `activeTab` : Pour accéder à l'onglet LinkedIn actif
-- `scripting` : Pour injecter le script de scraping
-- `https://*.linkedin.com/*` : Pour accéder aux pages LinkedIn
+---
 
 ## Contribution
 
-Ce projet est en développement actif. Les contributions sont les bienvenues !
+Les contributions sont les bienvenues !
+
+1. Fork le projet
+2. Créer une branche (`git checkout -b feat/amazing-feature`)
+3. Commit (`git commit -m 'feat: add amazing feature'`)
+4. Push (`git push origin feat/amazing-feature`)
+5. Ouvrir une Pull Request
+
+**Avant de soumettre** :
+```bash
+make test-all  # Tous les tests doivent passer
+```
+
+---
 
 ## Licence
 
 À définir
+
+---
+
+## Support
+
+- **Documentation** : [docs/](docs/)
+- **Issues** : GitHub Issues
+- **Tests** : `make test-all`
+
+---
+
+**Fait avec ❤️ et architecture hexagonale**
