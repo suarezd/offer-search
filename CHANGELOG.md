@@ -32,6 +32,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ### À venir
 - Tests fonctionnels BDD (step definitions complètes)
+- Tests use cases (Application layer)
 - Frontend pour visualisation des offres
 - Système d'alertes
 - Authentification utilisateurs
@@ -44,6 +45,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
   - Couche Application : Use Cases (Submit, Search, GetStats)
   - Couche Adapters : HTTP Routes (primary), SQLAlchemy Repository (secondary)
   - Couche Infrastructure : Injection de dépendances FastAPI
+<<<<<<< HEAD
 - **Architecture hexagonale** pour le frontend
   - Domain : Entités (Job, JobFilter) + Ports (IJobRepository)
   - Application : Services (JobApplicationService)
@@ -52,27 +54,45 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
   - 36 tests unitaires (Job entity)
   - 20 tests d'intégration (SQLAlchemy Repository)
   - 6 scénarios BDD Gherkin définis
+=======
+- **Tests complets** (56 tests passent à 100%)
+  - 36 tests unitaires (Job entity)
+  - 20 tests d'intégration (SQLAlchemy Repository)
+  - 6 scénarios BDD Gherkin (à exécuter)
+>>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
 - **Infrastructure de tests**
   - Configuration pytest avec marqueurs (unit, integration, functional)
   - Fixtures réutilisables avec isolation transactionnelle
   - Commandes Makefile pour tous les types de tests
   - GitHub Actions workflow pour CI/CD
 - **Support async complet**
+<<<<<<< HEAD
   - asyncpg pour PostgreSQL (+60% performance vs psycopg2)
+=======
+  - asyncpg pour PostgreSQL (+60% performance)
+>>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
   - SQLAlchemy 2.0 avec async/await
   - Sessions async avec gestion transactionnelle
 - **Documentation extensive**
   - 3 Architecture Decision Records (ADRs)
+<<<<<<< HEAD
   - Guide complet Architecture Hexagonale (500+ lignes)
   - Structure du projet documentée
   - Guide d'exécution des tests
   - QUICK_START.md pour démarrage rapide
   - Changelog conventionnel
   - README complet mis à jour
+=======
+  - Guide complet Architecture Hexagonale
+  - Structure du projet documentée
+  - Guide d'exécution des tests
+  - Changelog conventionnel
+>>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
 
 ### Modifié
 - **Backend API** complètement refactorisé en architecture hexagonale
 - **Base de données** : Support async avec asyncpg
+<<<<<<< HEAD
 - **Dépendances** : Ajout de pytest, pytest-asyncio, pytest-bdd, pytest-cov, httpx, freezegun
 - **Docker** : Configuration pour environnement de test (DB test créée automatiquement)
 - **Makefile** : 7 nouvelles commandes de test + backend-rebuild
@@ -81,18 +101,34 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - Anciens fichiers monolithiques (conservés temporairement pour compatibilité)
 
 ### Retiré
+=======
+- **Dépendances** : Ajout de pytest, pytest-asyncio, pytest-bdd, pytest-cov
+- **Docker** : Configuration pour environnement de test
+- **Makefile** : 7 nouvelles commandes de test
+
+### Déprécié
+- Aucun
+
+### Retiré
+- Anciens fichiers obsolètes (models/, routers/, schemas/, database.py)
+>>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
 - Commentaires inutiles dans le code (principe clean code)
 
 ### Corrigé
 - Bug dans `Job.matches_search()` : gestion correcte de `description=None`
 - Isolation transactionnelle des tests d'intégration
+<<<<<<< HEAD
 - Configuration database URL pour tests Docker (db vs localhost)
 - Format de retour de `save_many()` avec `duplicate_ids` et `failed`
+=======
+- Configuration database URL pour tests Docker
+>>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
 
 ### Sécurité
 - Validation stricte des entités dans la couche Domain
 - Gestion appropriée des duplicates
 - Protection contre l'injection SQL (ORM)
+<<<<<<< HEAD
 - Pas de secrets en dur dans le code
 
 ## [1.0.0] - 2025-12-11
@@ -123,6 +159,19 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - Python 3.11 + FastAPI pour le backend
 - PostgreSQL 16 pour la base de données
 - Docker pour la conteneurisation
+=======
+
+## [1.0.0] - Date antérieure
+
+### Ajouté
+- Extension Chrome/Firefox initiale
+- Scraping des offres LinkedIn
+- Backend FastAPI basique
+- Base de données PostgreSQL
+- Stockage local avec chrome.storage
+- Interface popup responsive
+- Support Chrome et Firefox
+>>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
 
 ---
 

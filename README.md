@@ -38,12 +38,18 @@ make stop
 | [Guide Architecture Hexagonale](docs/HEXAGONAL_ARCHITECTURE_GUIDE.md) | Tutoriel complet |
 | [Structure du Projet](docs/PROJECT_STRUCTURE.md) | Organisation détaillée |
 | [ADRs](docs/adr/) | Décisions architecturales |
+| [Tests Backend](backend/README_TESTS.md) | Guide d'exécution des tests |
 
 ---
+
+**➡️ [ADRs](docs/adr/)** - Décisions architecturales documentées
+
+**➡️ [CHANGELOG](CHANGELOG.md)** - Historique des changements
 
 ## Description
 
 Offer Search est une solution complète comprenant :
+<<<<<<< HEAD
 
 - 🔵 **Extension navigateur** (Chrome & Firefox) - Scraping LinkedIn
 - 🟢 **Backend API** - FastAPI avec architecture hexagonale
@@ -56,6 +62,18 @@ Offer Search est une solution complète comprenant :
 - ✅ **Phase 1** : Extension Chrome/Firefox + Scraping LinkedIn
 - ✅ **Phase 2** : Backend FastAPI + PostgreSQL + Architecture hexagonale
 - ⏳ **Phase 3** : Fonctionnalités avancées (tests, filtres, alertes, statistiques)
+=======
+- 🔵 **Extension navigateur** (Chrome & Firefox) pour scraper LinkedIn
+- 🟢 **API Backend** FastAPI avec PostgreSQL et architecture hexagonale
+- 🧪 **Tests complets** : 56 tests (unitaires + intégration + BDD)
+- 📊 **Architecture hexagonale** frontend & backend
+
+### État du Projet
+
+- **Phase 1** ✅ : Extension Chrome/Firefox + scraping LinkedIn
+- **Phase 2** ✅ : Backend FastAPI + PostgreSQL + Architecture hexagonale + Tests
+- **Phase 3** ⏳ : Fonctionnalités avancées (filtres, alertes, statistiques)
+>>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
 
 ---
 
@@ -237,11 +255,40 @@ make backend-install   # Infos installation (Docker/local)
 ### Workflow Backend
 
 ```bash
+<<<<<<< HEAD
 # 1. Démarrer
 make backend-dev
 
 # 2. Modifier le code dans backend/app/
 
+=======
+# Extension
+make help              # Afficher toutes les commandes
+make install           # Installer les dépendances
+make build             # Build pour Chrome
+make build-chrome      # Build pour Chrome (explicite)
+make build-firefox     # Build pour Firefox
+make dev               # Lancer le serveur de développement
+make clean             # Nettoyer les artifacts de build
+
+# Backend
+make backend-install   # Installer dépendances backend
+make backend-dev       # Démarrer backend + DB (Docker)
+make backend-stop      # Arrêter backend + DB
+
+# Tests
+make test-unit         # Tests unitaires (36 tests)
+make test-integration  # Tests d'intégration (20 tests)
+make test-functional   # Tests fonctionnels BDD (6 scénarios)
+make test-all          # Tous les tests
+make test-coverage     # Tests + rapport de couverture
+make test-ci           # Tests pour CI (XML + JUnit)
+
+# Docker
+make docker-build      # Build l'image Docker
+make docker-run        # Build l'extension dans Docker
+make docker-shell      # Ouvrir un shell dans le container
+>>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
 ```
 
 ### Workflow Extension
@@ -331,6 +378,7 @@ make backend-dev
 
 ### ✅ Réalisé
 
+<<<<<<< HEAD
 - [x] Extension Chrome/Firefox
 - [x] Scraping LinkedIn
 - [x] Backend FastAPI
@@ -338,6 +386,18 @@ make backend-dev
 - [x] Architecture hexagonale
 - [x] CI/CD GitHub Actions
 - [x] Documentation complète
+=======
+### Phase 2 : Backend centralisé ✅
+- [x] API FastAPI avec Python
+- [x] Base de données PostgreSQL
+- [x] Architecture hexagonale (Domain, Application, Adapters, Infrastructure)
+- [x] Endpoints pour soumettre et récupérer les offres
+- [x] Déduplication automatique des offres
+- [x] Support async avec asyncpg (+60% performance)
+- [x] Tests complets (56 tests unitaires + intégration)
+- [x] CI/CD avec GitHub Actions
+- [ ] Cache local avec IndexedDB
+>>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
 
 ### ⏳ En cours / À venir
 
