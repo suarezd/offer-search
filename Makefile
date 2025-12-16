@@ -1,4 +1,4 @@
-.PHONY: help install build build-chrome build-firefox dev clean docker-build docker-run docker-shell test backend-install backend-dev backend-stop api-test
+.PHONY: help install build build-chrome build-firefox dev clean docker-build docker-run docker-shell test backend-install backend-rebuild backend-dev backend-stop api-test test-unit test-integration test-functional test-all test-coverage test-watch test-ci test-local-unit test-local-all start stop
 
 DOCKER_IMAGE := offer-search
 DOCKER_TAG := latest
@@ -8,19 +8,22 @@ help:
 	@echo "=================================="
 	@echo ""
 	@echo "Installation:"
-	@echo "  make install          Install extension dependencies"
+	@echo "  make install          Install extension dependencies (optional - auto-installed)"
 	@echo "  make backend-install  Install backend dependencies"
 	@echo "  make docker-build     Build Docker images"
 	@echo ""
 	@echo "Build:"
-	@echo "  make build            Build extension for Chrome"
-	@echo "  make build-chrome     Build extension for Chrome"
-	@echo "  make build-firefox    Build extension for Firefox"
+	@echo "  make build            Build extension for Chrome (auto-installs deps)"
+	@echo "  make build-chrome     Build extension for Chrome (auto-installs deps)"
+	@echo "  make build-firefox    Build extension for Firefox (auto-installs deps)"
 	@echo "  make docker-run       Build extension using Docker"
 	@echo ""
 	@echo "Development:"
-	@echo "  make dev              Start extension dev server"
-	@echo "  make backend-dev      Start backend + DB with Docker"
+	@echo "  make start            Start EVERYTHING (backend + DB + frontend, auto-installs deps)"
+	@echo "  make stop             Stop everything"
+	@echo "  make dev              Start extension dev server only (auto-installs deps)"
+	@echo "  make backend-dev      Start backend + DB only"
+	@echo "  make backend-rebuild  Rebuild backend Docker image (after deps change)"
 	@echo "  make backend-stop     Stop backend + DB"
 	@echo "  make docker-shell     Open shell in container"
 	@echo ""
@@ -39,10 +42,18 @@ build: build-chrome
 
 build-chrome:
 	@echo "🏗️  Building extension for Chrome..."
+	@if [ ! -d "node_modules" ]; then \
+		echo "📦 Installing dependencies..."; \
+		npm install; \
+	fi
 	npm run build
 
 build-firefox:
 	@echo "🦊 Building extension for Firefox..."
+	@if [ ! -d "node_modules" ]; then \
+		echo "📦 Installing dependencies..."; \
+		npm install; \
+	fi
 	npm run build
 	@echo "📝 Copying Firefox manifest..."
 	@if [ -f src/manifest.firefox.json ]; then \
@@ -54,6 +65,10 @@ build-firefox:
 
 dev:
 	@echo "🚀 Starting development server..."
+	@if [ ! -d "node_modules" ]; then \
+		echo "📦 Installing dependencies..."; \
+		npm install; \
+	fi
 	npm run dev
 
 clean:
@@ -82,18 +97,55 @@ docker-shell:
 		$(DOCKER_IMAGE):$(DOCKER_TAG) /bin/sh
 
 backend-install:
-	@echo "📦 Installing backend dependencies..."
-	cd backend && pip install -r requirements.txt
+	@echo "📦 Backend dependencies installation"
+	@echo ""
+	@echo "🐳 Docker (recommended):"
+	@echo "   Dependencies are auto-installed in the Docker image"
+	@echo "   Run: make backend-rebuild"
+	@echo ""
+	@echo "💻 Local installation:"
+	@echo "   cd backend && pip3 install -r requirements.txt"
+	@echo ""
+
+backend-rebuild:
+	@echo "🔨 Rebuilding backend Docker image..."
+	docker compose build api
+	@echo "✅ Backend image rebuilt with latest dependencies"
+	@echo "💡 Run 'make backend-dev' to start the backend"
 
 backend-dev:
 	@echo "🚀 Starting backend + database..."
-	docker-compose up -d db api
+	docker compose up -d db api
 	@echo "✅ Backend running on http://localhost:8000"
 	@echo "✅ Database running on localhost:5432"
 
 backend-stop:
 	@echo "🛑 Stopping backend + database..."
 	docker-compose down
+
+start:
+	@echo "🚀 Starting ALL services (backend + DB + frontend)..."
+	@echo ""
+	@if [ ! -d "node_modules" ]; then \
+		echo "📦 Installing frontend dependencies..."; \
+		npm install; \
+		echo ""; \
+	fi
+	@echo "📦 Step 1/2: Starting backend + database..."
+	docker compose up -d db api
+	@echo "✅ Backend running on http://localhost:8000"
+	@echo "✅ Database running on localhost:5432"
+	@echo ""
+	@echo "📦 Step 2/2: Starting frontend dev server..."
+	@echo "⚠️  Press Ctrl+C to stop the frontend (backend will continue in background)"
+	@echo ""
+	npm run dev
+
+stop:
+	@echo "🛑 Stopping ALL services..."
+	@echo "🛑 Stopping backend + database..."
+	docker compose down
+	@echo "✅ All services stopped"
 
 api-test:
 	@echo "🧪 Testing API endpoints..."

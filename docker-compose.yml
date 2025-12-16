@@ -1,9 +1,8 @@
-version: '3.8'
-
 services:
   extension:
     build: .
     image: offer-search-extension:latest
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./dist:/app/dist
       - ./src:/app/src
@@ -16,6 +15,7 @@ services:
   extension-dev:
     build: .
     image: offer-search-extension:latest
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - .:/app
       - /app/node_modules
