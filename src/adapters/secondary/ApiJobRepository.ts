@@ -5,20 +5,36 @@ export class ApiJobRepository implements IJobRepository {
   constructor(private apiUrl: string) {}
 
   async submitJobs(jobs: Job[]): Promise<SubmitResult> {
+    console.log('[ApiJobRepository] submitJobs() called with', jobs.length, 'jobs');
+    console.log('[ApiJobRepository] API URL:', this.apiUrl);
+
     try {
-      const response = await fetch(`${this.apiUrl}/api/jobs/submit`, {
+      const url = `${this.apiUrl}/api/jobs/submit`;
+      console.log('[ApiJobRepository] Sending POST request to:', url);
+      console.log('[ApiJobRepository] Request body:', { jobs: jobs.slice(0, 2) }); // Log first 2 jobs only
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jobs })
       });
 
+      console.log('[ApiJobRepository] Response received - Status:', response.status, response.statusText);
+      console.log('[ApiJobRepository] Response OK?:', response.ok);
+
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('[ApiJobRepository] Error response body:', errorText);
+        throw new Error(`API error: ${response.status} - ${errorText}`);
       }
 
-      return await response.json();
+      const result = await response.json();
+      console.log('[ApiJobRepository] Parsed response:', result);
+      return result;
     } catch (error) {
-      console.error('Error submitting jobs:', error);
+      console.error('[ApiJobRepository] Exception during submitJobs:', error);
+      console.error('[ApiJobRepository] Error type:', error?.constructor?.name);
+      console.error('[ApiJobRepository] Error message:', error instanceof Error ? error.message : String(error));
       throw error;
     }
   }

@@ -99,24 +99,55 @@ uvicorn app.main:app --reload
   }
   ```
 
-## Structure
+## Structure (Architecture Hexagonale)
 
 ```
 backend/
 ├── app/
-│   ├── main.py              # Point d'entrée FastAPI
-│   ├── database.py          # Configuration SQLAlchemy
-│   ├── models/
-│   │   └── job.py           # Modèle Job
-│   ├── schemas/
-│   │   └── job.py           # Schémas Pydantic
-│   └── routers/
-│       └── jobs.py          # Routes API
-├── alembic/                 # Migrations (à venir)
-├── requirements.txt
+│   ├── main.py                                      # Point d'entrée FastAPI
+│   ├── domain/                                      # ❤️ Cœur métier
+│   │   ├── entities/
+│   │   │   └── job.py                              # Entité Job avec validations
+│   │   ├── ports/
+│   │   │   └── job_repository.py                   # Interface IJobRepository
+│   │   ├── exceptions/
+│   │   │   └── job_exceptions.py                   # Exceptions métier
+│   │   └── services/                               # Services domaine (si nécessaire)
+│   ├── application/                                 # 🎯 Use Cases
+│   │   ├── dto/
+│   │   │   └── job_dto.py                          # Data Transfer Objects
+│   │   ├── services/                               # Services applicatifs
+│   │   └── use_cases/
+│   │       ├── submit_jobs.py                      # Cas d'usage : Soumission
+│   │       ├── search_jobs.py                      # Cas d'usage : Recherche
+│   │       └── get_stats.py                        # Cas d'usage : Statistiques
+│   ├── adapters/                                    # 🔌 Interfaces externes
+│   │   ├── primary/                                # Adaptateurs primaires
+│   │   │   └── http/
+│   │   │       └── routes/
+│   │   │           └── job_routes.py               # Routes FastAPI
+│   │   └── secondary/                              # Adaptateurs secondaires
+│   │       └── persistence/
+│   │           ├── database.py                     # Configuration async DB
+│   │           ├── models/
+│   │           │   └── job_model.py                # Modèle SQLAlchemy
+│   │           └── sqlalchemy_job_repository.py    # Implémentation du port
+│   └── infrastructure/                              # ⚙️ Configuration
+│       └── dependencies.py                         # Dependency Injection FastAPI
+├── alembic/                                         # Migrations (à configurer)
+├── requirements.txt                                 # Dépendances production
+├── pyproject.toml                                   # Configuration moderne Python
 ├── Dockerfile
-└── .env.example
+├── .env.example
+└── README.md
 ```
+
+**Couches de l'architecture hexagonale :**
+
+1. **Domain** (❤️) : Logique métier pure, indépendante des frameworks
+2. **Application** (🎯) : Orchestration des use cases
+3. **Adapters** (🔌) : Connexion avec le monde extérieur (HTTP, BDD)
+4. **Infrastructure** (⚙️) : Configuration des frameworks (FastAPI, SQLAlchemy)
 
 ## Développement
 

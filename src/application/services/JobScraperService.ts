@@ -32,12 +32,19 @@ export class JobScraperService {
     console.log('[JobScraperService] scraper.scrape() returned', jobs.length, 'jobs');
 
     if (jobs.length > 0) {
+      console.log('[JobScraperService] Starting API submission...');
       try {
+        console.log('[JobScraperService] Calling repository.submitJobs() with', jobs.length, 'jobs');
         const result = await this.repository.submitJobs(jobs);
+        console.log('[JobScraperService] submitJobs() returned result:', result);
         console.log(`[JobScraperService] Submitted: ${result.inserted} new, ${result.duplicates} duplicates`);
       } catch (error) {
         console.error('[JobScraperService] Failed to submit jobs to API:', error);
+        console.error('[JobScraperService] Error details:', error instanceof Error ? error.message : String(error));
+        console.error('[JobScraperService] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       }
+    } else {
+      console.log('[JobScraperService] No jobs to submit (jobs.length = 0)');
     }
 
     return jobs;
