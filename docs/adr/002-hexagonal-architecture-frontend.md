@@ -33,11 +33,10 @@ Adoption de l'**Architecture Hexagonale** pour le frontend TypeScript avec la st
 src/
 ├── domain/                    # Cœur métier (indépendant)
 │   ├── entities/             # Job, JobFilter
-│   ├── ports/                # IJobRepository, IJobService
-│   └── services/             # Services métier
+│   └── ports/                # IJobRepository, IJobService
 ├── application/              # Logique application
 │   └── services/             # JobApplicationService
-└── adapters/
+└── infrastructure/           # Infrastructure & Adapters
     ├── primary/              # UI (Popup, Options)
     └── secondary/            # Persistence, API
         ├── ApiJobRepository.ts

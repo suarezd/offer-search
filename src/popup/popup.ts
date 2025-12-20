@@ -1,6 +1,6 @@
 import { JobScraperService } from '../application/services/JobScraperService';
-import { LinkedInScraper } from '../adapters/secondary/scrapers/LinkedInScraper';
-import { ApiJobRepository } from '../adapters/secondary/ApiJobRepository';
+import { LinkedInScraper } from '../infrastructure/secondary/scrapers/LinkedInScraper';
+import { ApiJobRepository } from '../infrastructure/secondary/ApiJobRepository';
 
 const API_URL = "http://localhost:8000";
 

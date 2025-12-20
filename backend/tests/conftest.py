@@ -7,8 +7,8 @@ from typing import AsyncGenerator, Generator, List
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
 
-from app.adapters.secondary.persistence.database import Base
-from app.adapters.secondary.persistence.sqlalchemy_job_repository import SQLAlchemyJobRepository
+from app.infrastructure.secondary.persistence.database import Base
+from app.infrastructure.secondary.persistence.sqlalchemy_job_repository import SQLAlchemyJobRepository
 from app.domain.ports.job_repository import IJobRepository
 from app.domain.entities.job import Job
 

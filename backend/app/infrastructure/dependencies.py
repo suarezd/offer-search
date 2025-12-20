@@ -2,8 +2,8 @@ from typing import AsyncGenerator
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.adapters.secondary.persistence.database import get_async_db
-from app.adapters.secondary.persistence.sqlalchemy_job_repository import SQLAlchemyJobRepository
+from app.infrastructure.secondary.persistence.database import get_async_db
+from app.infrastructure.secondary.persistence.sqlalchemy_job_repository import SQLAlchemyJobRepository
 from app.domain.ports.job_repository import IJobRepository
 from app.application.use_cases.submit_jobs import SubmitJobsUseCase
 from app.application.use_cases.search_jobs import SearchJobsUseCase

@@ -22,21 +22,18 @@ offer-search/
 │   │   ├── domain/                 # ❤️ Cœur métier
 │   │   │   ├── entities/           # Entités métier (Job)
 │   │   │   ├── ports/              # Interfaces (IJobRepository)
-│   │   │   ├── services/           # Services domaine
 │   │   │   └── exceptions/         # Exceptions métier
 │   │   ├── application/            # 🎯 Cas d'usage
 │   │   │   ├── dto/                # Data Transfer Objects
-│   │   │   ├── use_cases/          # Submit, Search, Stats
-│   │   │   └── services/           # Services applicatifs
-│   │   ├── adapters/
+│   │   │   └── use_cases/          # Submit, Search, Stats
+│   │   ├── infrastructure/         # 🔧 Infrastructure & Adapters
 │   │   │   ├── primary/            # 🔵 Entrées (HTTP)
 │   │   │   │   └── http/routes/    # Endpoints REST
-│   │   │   └── secondary/          # 🟢 Sorties (BDD)
-│   │   │       └── persistence/
-│   │   │           ├── models/     # SQLAlchemy ORM
-│   │   │           ├── database.py # Config BDD
-│   │   │           └── sqlalchemy_job_repository.py
-│   │   ├── infrastructure/         # ⚙️ Config
+│   │   │   ├── secondary/          # 🟢 Sorties (BDD)
+│   │   │   │   └── persistence/
+│   │   │   │       ├── models/     # SQLAlchemy ORM
+│   │   │   │       ├── database.py # Config BDD
+│   │   │   │       └── sqlalchemy_job_repository.py
 │   │   │   └── dependencies.py     # Injection dépendances
 │   │   └── main.py                 # Point d'entrée FastAPI
 │   ├── tests/                      # Tests (à implémenter)
@@ -44,18 +41,17 @@ offer-search/
 │   ├── requirements.txt            # Dépendances Python
 │   └── Dockerfile                  # Image Docker backend
 │
-├── extension/                      # 🔵 Extension navigateur (TypeScript)
-│   ├── src/
-│   │   ├── domain/                 # ❤️ Cœur métier
-│   │   │   ├── entities/           # Job, JobFilter
-│   │   │   └── ports/              # IJobRepository
-│   │   ├── application/            # 🎯 Services
-│   │   │   └── services/           # JobApplicationService
-│   │   ├── adapters/
-│   │   │   ├── primary/            # 🔵 UI (Popup, Options)
-│   │   │   └── secondary/          # 🟢 Persistence, API
-│   │   │       ├── ApiJobRepository.ts
-│   │   │       └── LocalJobRepository.ts
+├── src/                            # 🔵 Extension navigateur (TypeScript)
+│   ├── domain/                     # ❤️ Cœur métier
+│   │   ├── entities/               # Job, JobFilter
+│   │   └── ports/                  # IJobRepository
+│   ├── application/                # 🎯 Services
+│   │   └── services/               # JobApplicationService
+│   ├── infrastructure/             # 🔧 Infrastructure & Adapters
+│   │   ├── primary/                # 🔵 UI (Popup, Options)
+│   │   └── secondary/              # 🟢 Persistence, API
+│   │       ├── ApiJobRepository.ts
+│   │       └── scrapers/
 │   │   ├── background.ts           # Service worker
 │   │   ├── content.ts              # Script injection LinkedIn
 │   │   ├── popup/
