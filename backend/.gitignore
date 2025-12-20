@@ -1,0 +1,6 @@
+
+# Test coverage reports
+coverage.xml
+junit.xml
+htmlcov/
+.coverage

@@ -65,7 +65,7 @@ class Job:
         return (
             search_lower in self.title.lower() or
             search_lower in self.company.lower() or
-            (self.description and search_lower in self.description.lower())
+            (self.description is not None and search_lower in self.description.lower())
         )
 
     def matches_location(self, location: str) -> bool:

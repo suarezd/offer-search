@@ -2,14 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.adapters.primary.http.routes import job_routes
 from app.adapters.secondary.persistence.database import engine, Base
-
-Base.metadata.create_all(bind=engine)
+import os
 
 app = FastAPI(
     title="Offer Search API",
     description="API pour centraliser les offres d'emploi LinkedIn - Hexagonal Architecture",
     version="2.0.0"
 )
+
+@app.on_event("startup")
+async def startup_event():
+    if os.getenv("SKIP_DB_INIT") != "true":
+        Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,

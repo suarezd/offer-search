@@ -9,14 +9,10 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://offeruser:offerpass@db:5432/offerdb")
 
-# Synchronous engine (for backward compatibility and migrations)
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-
-# Asynchronous engine (for hexagonal architecture)
-# Note: For async, we need to use postgresql+asyncpg:// instead of postgresql://
 ASYNC_DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
 
 async_engine = create_async_engine(ASYNC_DATABASE_URL, echo=False)

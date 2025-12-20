@@ -27,8 +27,15 @@ help:
 	@echo "  make backend-stop     Stop backend + DB"
 	@echo "  make docker-shell     Open shell in container"
 	@echo ""
-	@echo "API:"
-	@echo "  make api-test         Test API endpoints"
+	@echo "Testing:"
+	@echo "  make test-unit        Run unit tests only"
+	@echo "  make test-integration Run integration tests only"
+	@echo "  make test-functional  Run functional/BDD tests only"
+	@echo "  make test-all         Run all tests (auto-starts services)"
+	@echo "  make test-coverage    Run all tests with coverage (auto-starts services)"
+	@echo "  make test-watch       Run tests in watch mode"
+	@echo "  make test-ci          Run tests for CI (starts/stops services, with coverage)"
+	@echo "  make api-test         Test API endpoints (manual)"
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean            Remove build artifacts"
@@ -152,6 +159,85 @@ api-test:
 	@curl -s http://localhost:8000/health | jq . || echo "❌ API not running"
 	@curl -s http://localhost:8000/api/jobs/stats | jq . || echo "❌ Stats endpoint failed"
 
-test:
+test-unit:
+	@echo "🧪 Running unit tests..."
+	docker exec offer-search-api-1 python -m pytest -m unit -v
+
+test-integration:
+	@echo "🧪 Running integration tests..."
+	@echo "⚠️  Ensure database is running (make backend-dev)"
+	docker exec offer-search-api-1 python -m pytest -m integration -v
+
+test-functional:
+	@echo "🧪 Running functional/BDD tests..."
+	@echo "⚠️  Ensure API is running (make backend-dev)"
+	docker exec offer-search-api-1 python -m pytest -m functional -v
+
+test-all:
+	@echo "🧪 Running all tests..."
+	@echo "📦 Ensuring services are running..."
+	@docker compose ps | grep -q "offer-search-api-1" || (echo "🚀 Starting services..." && docker compose up -d db api)
+	@echo "⏳ Waiting for services to be ready..."
+	@for i in $$(seq 1 30); do \
+		if docker exec offer-search-api-1 python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" 2>/dev/null; then \
+			break; \
+		fi; \
+		echo "   Waiting for API ($$i/30)..."; \
+		sleep 2; \
+	done
+	@echo "✅ Services are ready"
 	@echo "🧪 Running tests..."
-	@echo "⚠️  No tests configured yet"
+	@docker exec offer-search-api-1 python -m pytest -v || (echo "❌ Tests failed" && exit 1)
+	@echo "✅ All tests passed!"
+
+test-coverage:
+	@echo "🧪 Running all tests with coverage..."
+	@echo "📦 Ensuring services are running..."
+	@docker compose ps | grep -q "offer-search-api-1" || (echo "🚀 Starting services..." && docker compose up -d db api)
+	@echo "⏳ Waiting for services to be ready..."
+	@for i in $$(seq 1 30); do \
+		if docker exec offer-search-api-1 python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" 2>/dev/null; then \
+			break; \
+		fi; \
+		echo "   Waiting for API ($$i/30)..."; \
+		sleep 2; \
+	done
+	@echo "✅ Services are ready"
+	@echo "🧪 Running tests with coverage..."
+	@docker exec offer-search-api-1 python -m pytest -v --cov=app --cov-report=term-missing --cov-report=html
+	@echo "📊 Coverage report generated in backend/htmlcov/index.html"
+
+test-watch:
+	@echo "🧪 Running tests in watch mode..."
+	@echo "⚠️  Ensure database and API are running (make backend-dev)"
+	docker exec -it offer-search-api-1 python -m pytest -v --cov=app -f
+
+test-ci:
+	@echo "🧪 Running tests for CI..."
+	@echo "📦 Starting services..."
+	@docker compose up -d db api
+	@echo "⏳ Waiting for services to be ready..."
+	@for i in $$(seq 1 30); do \
+		if docker exec offer-search-api-1 python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" 2>/dev/null; then \
+			break; \
+		fi; \
+		echo "   Waiting for API ($$i/30)..."; \
+		sleep 2; \
+	done
+	@echo "✅ Services are ready"
+	@echo "🧪 Running tests with coverage..."
+	@docker exec offer-search-api-1 python -m pytest -v --cov=app --cov-report=xml --cov-report=term --junitxml=junit.xml || (echo "❌ Tests failed" && docker compose down && exit 1)
+	@echo "✅ Tests passed, stopping services..."
+	@docker compose down
+	@echo "✅ CI tests completed successfully!"
+
+test-local-unit:
+	@echo "🧪 Running unit tests (local Python)..."
+	cd backend && python3 -m pytest -m unit -v
+
+test-local-all:
+	@echo "🧪 Running all tests (local Python)..."
+	@echo "⚠️  Ensure TEST_DATABASE_URL is set"
+	cd backend && python3 -m pytest -v
+
+test: test-all
