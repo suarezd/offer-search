@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, DateTime, Text, Index
 from sqlalchemy.sql import func
-from app.adapters.secondary.persistence.database import Base
+from app.infrastructure.secondary.persistence.database import Base
 
 
 class JobModel(Base):

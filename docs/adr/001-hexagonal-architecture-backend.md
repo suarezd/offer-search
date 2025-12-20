@@ -42,10 +42,10 @@ backend/app/
 ├── application/         # Cas d'usage
 │   ├── dto/             # Data Transfer Objects
 │   └── use_cases/       # Submit, Search, Stats
-├── adapters/
-│   ├── primary/         # Entrées (HTTP, CLI)
-│   └── secondary/       # Sorties (PostgreSQL, MongoDB)
-└── infrastructure/      # Configuration, DI
+└── infrastructure/      # Infrastructure & Adapters
+    ├── primary/         # Entrées (HTTP, CLI)
+    ├── secondary/       # Sorties (PostgreSQL, MongoDB)
+    └── dependencies.py  # Configuration, DI
 ```
 
 ### Principes appliqués

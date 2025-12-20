@@ -10,7 +10,7 @@ from app.domain.exceptions.job_exceptions import (
     JobNotFoundError,
     RepositoryError
 )
-from app.adapters.secondary.persistence.models.job_model import JobModel
+from app.infrastructure.secondary.persistence.models.job_model import JobModel
 
 
 class SQLAlchemyJobRepository(IJobRepository):

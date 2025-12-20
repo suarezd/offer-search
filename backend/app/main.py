@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.adapters.primary.http.routes import job_routes
-from app.adapters.secondary.persistence.database import engine, Base
+from app.infrastructure.primary.http.routes import job_routes
+from app.infrastructure.secondary.persistence.database import engine, Base
 import os
 
 app = FastAPI(
