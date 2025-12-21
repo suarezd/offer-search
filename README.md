@@ -1,5 +1,8 @@
 # Offer Search
 
+[![Tests](https://github.com/suarezd/offer-search/actions/workflows/tests.yml/badge.svg)](https://github.com/suarezd/offer-search/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/suarezd/offer-search/branch/master/graph/badge.svg)](https://codecov.io/gh/suarezd/offer-search)
+
 Extension Chrome/Firefox + Backend FastAPI pour centraliser les offres d'emploi LinkedIn avec architecture hexagonale.
 
 ## 🚀 Quick Start
@@ -32,13 +35,12 @@ make stop
 
 | Document | Description |
 |----------|-------------|
-| **[QUICK_START.md](QUICK_START.md)** | Guide de démarrage Docker-only |
+| **[QUICK_START.md](QUICK_START.md)** | Guide de démarrage rapide (Linux/macOS/Windows) |
+| **[TESTING.md](TESTING.md)** | Guide complet des tests (Backend + E2E Selenium) |
 | **[CHANGELOG.md](CHANGELOG.md)** | Historique des changements |
-| [Documentation complète](docs/README.md) | Architecture, guides, et ADRs |
-| [Guide Architecture Hexagonale](docs/HEXAGONAL_ARCHITECTURE_GUIDE.md) | Tutoriel complet |
-| [Structure du Projet](docs/PROJECT_STRUCTURE.md) | Organisation détaillée |
-| [ADRs](docs/adr/) | Décisions architecturales |
-| [Tests Backend](backend/README_TESTS.md) | Guide d'exécution des tests |
+| [Documentation complète](docs/README.md) | Index de la documentation |
+| [Architecture & ADRs](docs/adr/ADR.md) | Architecture hexagonale et décisions |
+| [ADRs spécifiques](docs/adr/) | Décisions architecturales détaillées |
 
 ---
 
@@ -412,15 +414,13 @@ make backend-dev
 
 ## Contribution
 
-Les contributions sont les bienvenues ! Veuillez lire notre [Code de Conduite](CODE_OF_CONDUCT.md) avant de contribuer.
+Les contributions sont les bienvenues !
 
 1. Fork le projet
 2. Créer une branche (`git checkout -b feat/amazing-feature`)
 3. Commit (`git commit -m 'feat: add amazing feature'`)
 4. Push (`git push origin feat/amazing-feature`)
 5. Ouvrir une Pull Request
-
-Pour plus de détails, consultez [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
@@ -434,7 +434,6 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 
 - **Documentation** : [docs/](docs/)
 - **Issues** : [GitHub Issues](https://github.com/suarezd/offer-search/issues)
-- **Sécurité** : Pour signaler une vulnérabilité, consultez [SECURITY.md](SECURITY.md)
 
 ---
 

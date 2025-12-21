@@ -8,13 +8,16 @@ Bienvenue dans la documentation du projet **Offer Search**, une extension naviga
 
 ### 🏛️ Architecture
 
-1. **[Architecture Decision Records (ADR)](adr/)** - Décisions architecturales documentées
-   - [ADR-001: Architecture hexagonale backend](adr/001-hexagonal-architecture-backend.md) ⭐
+1. **[Architecture & ADRs - Vue d'ensemble](adr/ADR.md)** ⭐ - Guide complet de l'architecture hexagonale
+   - Architecture hexagonale (Ports & Adapters)
+   - Structure du projet (Backend + Frontend)
+   - Migration et implémentation
+   - Historique et décisions
+
+2. **[Architecture Decision Records (ADR) - Détails](adr/)** - Décisions architecturales spécifiques
+   - [ADR-001: Architecture hexagonale backend](adr/001-hexagonal-architecture-backend.md)
    - [ADR-002: Architecture hexagonale frontend](adr/002-hexagonal-architecture-frontend.md)
    - [ADR-003: Opérations asynchrones avec asyncpg](adr/003-async-database-operations.md)
-
-2. **[Guide Architecture Hexagonale](HEXAGONAL_ARCHITECTURE_GUIDE.md)** - Guide complet et tutoriel
-3. **[Rapport d'Implémentation](ARCHITECTURE_IMPLEMENTATION_REPORT.md)** - Rapport détaillé de la migration
 
 ### 🚀 Démarrage Rapide
 
@@ -220,9 +223,8 @@ Documentation interactive: http://localhost:8000/docs
 
 ### Architecture
 
-- [Architecture Decision Records (ADR)](adr/) - Décisions avec contexte et justifications
-- [Guide Hexagonal Architecture](HEXAGONAL_ARCHITECTURE_GUIDE.md) - Tutoriel complet
-- [Rapport d'Implémentation](ARCHITECTURE_IMPLEMENTATION_REPORT.md) - Détails de migration
+- **[Architecture & ADRs - Guide complet](adr/ADR.md)** ⭐ - Vue d'ensemble complète
+- [Architecture Decision Records (ADR)](adr/) - Décisions spécifiques détaillées
 
 ### Concepts
 
