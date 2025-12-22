@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const resetFiltersBtn = document.createElement('button');
   resetFiltersBtn.textContent = 'Réinitialiser les filtres';
-  resetFiltersBtn.style.cssText = 'background:#6c757d;margin-top:8px;';
+  resetFiltersBtn.className = 'btn-secondary';
   resetFiltersBtn.onclick = () => {
     searchInput.value = '';
     locationInput.value = '';
@@ -145,13 +145,15 @@ document.addEventListener("DOMContentLoaded", () => {
         (j: any) => `
       <div class="offer">
         <h4><a href="${j.url}" target="_blank">${j.title}</a></h4>
-        <div style="color:#0a66c2;font-weight:500;margin:4px 0;">${j.company}</div>
+        <div class="offer-company">
+          ${j.company}
+          ${j.source ? `<span class="tag tag-source">${j.source.charAt(0).toUpperCase() + j.source.slice(1)}</span>` : ''}
+        </div>
         <div class="tags">
           <span class="tag">📍 ${j.location}</span>
           <span class="tag">🕒 ${j.posted_date || j.postedDate}</span>
-          ${j.source ? `<span class="tag" style="background:#0a66c2;color:white;">🔗 ${j.source.charAt(0).toUpperCase() + j.source.slice(1)}</span>` : ''}
         </div>
-        ${j.description ? `<div style="font-size:12px;color:#666;margin-top:6px;">${j.description}</div>` : ''}
+        ${j.description ? `<div class="offer-description">${j.description}</div>` : ''}
       </div>
     `
       )
