@@ -45,14 +45,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const jobs = await scraperService.scrapeCurrentPage(tab.url, tab.id);
 
       if (jobs.length > 0) {
+        // Récupérer les offres existantes pour les agréger
+        const stored = await chrome.storage.local.get(['offers']);
+        const existingOffers = (stored.offers || []) as Array<any>;
+
+        // Créer un Map pour dédupliquer par ID
+        const offersMap = new Map();
+        existingOffers.forEach(job => offersMap.set(job.id, job));
+        jobs.forEach(job => offersMap.set(job.id, job));
+
+        // Convertir en array
+        const aggregatedOffers = Array.from(offersMap.values());
+        const newJobsCount = jobs.length;
+        const totalCount = aggregatedOffers.length;
+
         await chrome.storage.local.set({
-          offers: jobs,
+          offers: aggregatedOffers,
           lastUpdate: new Date().toLocaleString("fr-FR"),
-          total: jobs.length
+          total: totalCount
         });
 
-        status.textContent = `✓ ${jobs.length} offres récupérées avec succès !`;
-        displayJobs(jobs);
+        const newCount = totalCount - existingOffers.length;
+        status.textContent = `✓ ${newJobsCount} offres scrapées (+${newCount} nouvelles) – Total: ${totalCount}`;
+        displayJobs(aggregatedOffers);
       } else {
         status.textContent = "⚠️ Aucune offre trouvée – scroll la page pour charger plus d'offres";
       }
@@ -134,6 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="tags">
           <span class="tag">📍 ${j.location}</span>
           <span class="tag">🕒 ${j.posted_date || j.postedDate}</span>
+          ${j.source ? `<span class="tag" style="background:#0a66c2;color:white;">🔗 ${j.source.charAt(0).toUpperCase() + j.source.slice(1)}</span>` : ''}
         </div>
         ${j.description ? `<div style="font-size:12px;color:#666;margin-top:6px;">${j.description}</div>` : ''}
       </div>

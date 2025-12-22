@@ -44,38 +44,20 @@ make stop
 
 ---
 
-**➡️ [ADRs](docs/adr/)** - Décisions architecturales documentées
-
-**➡️ [CHANGELOG](CHANGELOG.md)** - Historique des changements
-
 ## Description
 
 Offer Search est une solution complète comprenant :
-<<<<<<< HEAD
 
-- 🔵 **Extension navigateur** (Chrome & Firefox) - Scraping LinkedIn
-- 🟢 **Backend API** - FastAPI avec architecture hexagonale
-- 🗄️ **Base de données** - PostgreSQL avec async (asyncpg)
-- 🏗️ **Architecture hexagonale** - Domain, Application, Adapters, Infrastructure
-- ⚡ **Performance** - Async/await (+60% performance)
-
-### État du Projet
-
-- ✅ **Phase 1** : Extension Chrome/Firefox + Scraping LinkedIn
-- ✅ **Phase 2** : Backend FastAPI + PostgreSQL + Architecture hexagonale
-- ⏳ **Phase 3** : Fonctionnalités avancées (tests, filtres, alertes, statistiques)
-=======
 - 🔵 **Extension navigateur** (Chrome & Firefox) pour scraper LinkedIn
 - 🟢 **API Backend** FastAPI avec PostgreSQL et architecture hexagonale
-- 🧪 **Tests complets** : 56 tests (unitaires + intégration + BDD)
+- 🧪 **Tests complets** : 62 tests (unitaires + intégration + BDD + E2E)
 - 📊 **Architecture hexagonale** frontend & backend
 
 ### État du Projet
 
 - **Phase 1** ✅ : Extension Chrome/Firefox + scraping LinkedIn
-- **Phase 2** ✅ : Backend FastAPI + PostgreSQL + Architecture hexagonale + Tests
+- **Phase 2** ✅ : Backend FastAPI + PostgreSQL + Architecture hexagonale + Tests complets
 - **Phase 3** ⏳ : Fonctionnalités avancées (filtres, alertes, statistiques)
->>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
 
 ---
 
@@ -86,7 +68,7 @@ Offer Search est une solution complète comprenant :
 - ✅ Scraping des offres LinkedIn recommandées
 - ✅ Support multi-formats de pages LinkedIn
 - ✅ Extraction complète (titre, entreprise, localisation, date, description, URL)
-- ✅ Stockage local avec `chrome.storage.local`
+- ✅ Agrégation des offres (dédoublonnage automatique)
 - ✅ Interface popup responsive
 - ✅ Compatible Chrome & Firefox
 
@@ -99,12 +81,17 @@ Offer Search est une solution complète comprenant :
 - ✅ **Architecture hexagonale**
   - Domain : Entités + Ports
   - Application : Use Cases
-  - Adapters : HTTP + PostgreSQL
-  - Infrastructure : DI FastAPI
+  - Infrastructure : HTTP Primary + PostgreSQL Secondary
+  - Configuration : DI FastAPI
 - ✅ **Base de données PostgreSQL**
   - Support async avec asyncpg
   - Déduplication automatique
   - Indexation optimisée
+- ✅ **Tests complets**
+  - 36 tests unitaires
+  - 20 tests d'intégration
+  - 6 tests fonctionnels (BDD)
+  - Tests E2E avec Selenium Grid
 
 ### Fonctionnalités avancées (Phase 3) ⏳
 
@@ -189,21 +176,20 @@ offer-search/
 │   ├── app/
 │   │   ├── domain/             # ❤️  Cœur métier (entities, ports)
 │   │   ├── application/        # 🎯 Use cases
-│   │   ├── adapters/           # 🔌 HTTP + PostgreSQL
-│   │   └── infrastructure/     # ⚙️  Configuration
+│   │   └── infrastructure/     # ⚙️  Primary (HTTP) + Secondary (PostgreSQL)
+│   ├── tests/                  # 🧪 Tests (unit, integration, functional, e2e)
 │   ├── Dockerfile
 │   └── requirements.txt
 │
-├── extension/                  # 🔵 Extension navigateur (TypeScript)
-│   ├── src/
-│   │   ├── domain/             # Entités + Ports
-│   │   ├── application/        # Services
-│   │   ├── adapters/           # UI + API
-│   │   ├── background.ts
-│   │   ├── content.ts
-│   │   └── popup/
-│   ├── dist/                   # Build (généré)
-│   └── manifest.json
+├── src/                        # 🔵 Extension navigateur (TypeScript)
+│   ├── domain/                 # Entités + Ports
+│   ├── application/            # Services (Use Cases)
+│   ├── infrastructure/         # Primary (UI) + Secondary (API, Scrapers)
+│   ├── background.ts
+│   ├── content.ts
+│   └── popup/
+│
+├── dist/                       # Build (généré)
 │
 ├── docs/                       # 📚 Documentation
 │   ├── adr/                    # Architecture Decision Records
@@ -229,6 +215,8 @@ offer-search/
 - **SQLAlchemy 2.0** - ORM async
 - **asyncpg** - Driver PostgreSQL async (+60% perf)
 - **Pydantic** - Validation
+- **Pytest** - Tests (pytest-bdd, pytest-asyncio, pytest-cov)
+- **Selenium** - Tests E2E avec Selenium Grid
 - **Docker** - Conteneurisation
 
 ### Frontend
@@ -241,56 +229,70 @@ offer-search/
 
 ## Commandes Makefile
 
-### Backend
+### Démarrage rapide
 
 ```bash
 make start             # Démarrer TOUT (backend + DB + frontend, auto-installe deps)
 make stop              # Arrêter tout
 make backend-dev       # Démarrer backend + DB seulement
-make backend-rebuild   # Rebuild après modif requirements.txt
 make backend-stop      # Arrêter backend + DB
-make backend-install   # Infos installation (Docker/local)
 ```
+
+### Extension
+
+```bash
+make build             # Build pour Chrome
+make build-chrome      # Build pour Chrome (explicite)
+make build-firefox     # Build pour Firefox
+make dev               # Lancer le serveur de développement
+make clean             # Nettoyer les artifacts de build
+```
+
+### Tests Backend
+
+```bash
+make test-unit         # Tests unitaires (36 tests)
+make test-integration  # Tests d'intégration (20 tests)
+make test-functional   # Tests fonctionnels BDD (6 scénarios)
+make test-all          # Tous les tests backend (unit + integration + functional)
+make test-coverage     # Tests + rapport de couverture
+make test-ci           # Tests pour CI (avec couverture)
+```
+
+### Tests E2E avec Selenium Grid
+
+```bash
+make selenium-start    # Démarrer Selenium Grid + Chrome
+make selenium-stop     # Arrêter Selenium Grid
+make test-e2e-grid     # Tests E2E API avec Selenium Grid
+make test-e2e-grid-all # Tous les tests E2E avec Selenium Grid
+```
+
+### Backend
+
+```bash
+make backend-install   # Infos installation (Docker/local)
+make backend-rebuild   # Rebuild après modif requirements.txt
+make docker-shell      # Ouvrir un shell dans le container
+```
+
+---
 
 ## Développement
 
 ### Workflow Backend
 
 ```bash
-<<<<<<< HEAD
 # 1. Démarrer
 make backend-dev
 
 # 2. Modifier le code dans backend/app/
 
-=======
-# Extension
-make help              # Afficher toutes les commandes
-make install           # Installer les dépendances
-make build             # Build pour Chrome
-make build-chrome      # Build pour Chrome (explicite)
-make build-firefox     # Build pour Firefox
-make dev               # Lancer le serveur de développement
-make clean             # Nettoyer les artifacts de build
+# 3. Tester
+make test-all
 
-# Backend
-make backend-install   # Installer dépendances backend
-make backend-dev       # Démarrer backend + DB (Docker)
-make backend-stop      # Arrêter backend + DB
-
-# Tests
-make test-unit         # Tests unitaires (36 tests)
-make test-integration  # Tests d'intégration (20 tests)
-make test-functional   # Tests fonctionnels BDD (6 scénarios)
-make test-all          # Tous les tests
-make test-coverage     # Tests + rapport de couverture
-make test-ci           # Tests pour CI (XML + JUnit)
-
-# Docker
-make docker-build      # Build l'image Docker
-make docker-run        # Build l'extension dans Docker
-make docker-shell      # Ouvrir un shell dans le container
->>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
+# 4. Arrêter
+make backend-stop
 ```
 
 ### Workflow Extension
@@ -333,7 +335,7 @@ make backend-dev
 
 ```
 ┌─────────────────────────────────────────┐
-│           PRIMARY ADAPTERS              │
+│        PRIMARY (Infrastructure)         │
 │         (HTTP Routes, UI)               │
 └────────────────┬────────────────────────┘
                  │
@@ -348,8 +350,8 @@ make backend-dev
         └────────┬────────┘
                  │
 ┌────────────────▼────────────────────────┐
-│        SECONDARY ADAPTERS               │
-│    (PostgreSQL, External APIs)          │
+│      SECONDARY (Infrastructure)         │
+│    (PostgreSQL, Scrapers, APIs)         │
 └─────────────────────────────────────────┘
 ```
 
@@ -364,13 +366,9 @@ make backend-dev
    - Use Cases : `SubmitJobsUseCase`, `SearchJobsUseCase`
    - DTOs : `JobCreateDTO`, `JobResponseDTO`
 
-3. **Adapters** - Interface monde extérieur
-   - Primary : HTTP Routes
-   - Secondary : PostgreSQL Repository
-
-4. **Infrastructure** - Configuration
-   - Dependency Injection
-   - Database config
+3. **Infrastructure** - Implémentations
+   - **Primary** : Points d'entrée (HTTP Routes, UI Popup)
+   - **Secondary** : Adaptateurs sortants (PostgreSQL Repository, API Client, LinkedIn Scraper)
 
 **Avantage** : Facile de changer PostgreSQL → MongoDB sans toucher au domaine !
 
@@ -380,26 +378,21 @@ make backend-dev
 
 ### ✅ Réalisé
 
-<<<<<<< HEAD
+**Phase 1 : Extension navigateur**
 - [x] Extension Chrome/Firefox
-- [x] Scraping LinkedIn
-- [x] Backend FastAPI
-- [x] PostgreSQL avec async
-- [x] Architecture hexagonale
-- [x] CI/CD GitHub Actions
-- [x] Documentation complète
-=======
-### Phase 2 : Backend centralisé ✅
+- [x] Scraping LinkedIn avec agrégation
+- [x] Architecture hexagonale frontend
+
+**Phase 2 : Backend centralisé**
 - [x] API FastAPI avec Python
 - [x] Base de données PostgreSQL
-- [x] Architecture hexagonale (Domain, Application, Adapters, Infrastructure)
+- [x] Architecture hexagonale (Domain, Application, Infrastructure)
 - [x] Endpoints pour soumettre et récupérer les offres
 - [x] Déduplication automatique des offres
 - [x] Support async avec asyncpg (+60% performance)
-- [x] Tests complets (56 tests unitaires + intégration)
+- [x] Tests complets (62 tests : unitaires + intégration + BDD + E2E)
 - [x] CI/CD avec GitHub Actions
-- [ ] Cache local avec IndexedDB
->>>>>>> 80fd755 (chore(tests): adding behavioural, unit and integration tests)
+- [x] Selenium Grid pour tests E2E multi-plateformes
 
 ### ⏳ En cours / À venir
 
