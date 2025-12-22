@@ -9,6 +9,40 @@ Guide de démarrage rapide pour développer avec Docker uniquement (pas besoin d
 
 **C'est tout !** Pas besoin de Python, pip, Node.js, ou npm sur votre machine.
 
+### 💻 Installation selon votre OS
+
+#### Linux / macOS
+Docker et Make sont généralement préinstallés ou facilement installables via votre gestionnaire de paquets.
+
+#### Windows
+Vous avez **3 options** pour utiliser Offer Search sur Windows :
+
+**Option 1 : Docker Desktop + Git Bash (Recommandé)**
+- Installer [Docker Desktop pour Windows](https://www.docker.com/products/docker-desktop/)
+- Installer [Git for Windows](https://git-scm.com/download/win) (inclut Git Bash avec `make`)
+- Utiliser Git Bash pour lancer toutes les commandes `make`
+
+**Option 2 : WSL2 (Windows Subsystem for Linux)**
+- Installer WSL2 avec Ubuntu
+- Suivre les instructions Linux ci-dessus dans WSL2
+- Plus natif et performant pour le développement
+
+**Option 3 : PowerShell sans Make**
+Si vous ne voulez pas utiliser Git Bash, utilisez les commandes npm directement :
+```powershell
+# Au lieu de: make build
+npm install
+npm run build
+
+# Au lieu de: make backend-dev
+docker compose up -d db api
+```
+
+**Dépannage Windows :**
+- **Make non reconnu** : Installer Git for Windows ou utiliser WSL2
+- **Docker ne démarre pas** : Vérifier que la virtualisation est activée dans le BIOS
+- **Permissions Docker** : Lancer PowerShell/Git Bash en administrateur
+
 ## 🚀 Démarrage rapide
 
 ```bash
@@ -261,11 +295,11 @@ make backend-dev
 ## 📚 Documentation
 
 - [README principal](README.md)
+- [Guide des tests](TESTING.md)
 - [CHANGELOG](CHANGELOG.md)
-- [Architecture Hexagonale](docs/HEXAGONAL_ARCHITECTURE_GUIDE.md)
-- [Structure du projet](docs/PROJECT_STRUCTURE.md)
-- [Tests Backend](backend/README.md)
-- [ADRs](docs/adr/)
+- [Architecture & ADRs](docs/adr/ADR.md)
+- [Documentation backend](backend/README.md)
+- [Documentation complète](docs/README.md)
 
 ## ✅ Checklist avant commit
 

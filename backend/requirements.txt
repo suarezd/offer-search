@@ -14,3 +14,8 @@ pytest-cov==6.0.0
 pytest-bdd==8.0.0
 httpx==0.28.1
 freezegun==1.5.1
+
+# Selenium E2E tests
+selenium==4.27.1
+webdriver-manager==4.0.2
+pytest-selenium==4.1.0

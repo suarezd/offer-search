@@ -55,5 +55,52 @@ services:
         condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  # Selenium Grid Hub (orchestrateur)
+  selenium-hub:
+    image: selenium/hub:4.27.0
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"      # Selenium Grid UI
+      - "4442:4442"      # Event bus publish
+      - "4443:4443"      # Event bus subscribe
+    environment:
+      GRID_MAX_SESSION: 5
+      GRID_BROWSER_TIMEOUT: 300
+      GRID_TIMEOUT: 300
+
+  # Chrome Node (navigateur Chrome)
+  chrome:
+    image: selenium/node-chrome:4.27.0
+    container_name: selenium-chrome
+    depends_on:
+      - selenium-hub
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_MAX_SESSIONS: 3
+      SE_NODE_SESSION_TIMEOUT: 300
+    shm_size: 2gb
+    ports:
+      - "7900:7900"      # VNC viewer (voir les tests en temps réel)
+
+  # Firefox Node (navigateur Firefox) - optionnel
+  firefox:
+    image: selenium/node-firefox:4.27.0
+    container_name: selenium-firefox
+    depends_on:
+      - selenium-hub
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_MAX_SESSIONS: 3
+      SE_NODE_SESSION_TIMEOUT: 300
+    shm_size: 2gb
+    ports:
+      - "7901:7900"      # VNC viewer Firefox
+    profiles:
+      - firefox         # Activable avec --profile firefox
+
 volumes:
   postgres_data:

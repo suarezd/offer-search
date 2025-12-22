@@ -6,6 +6,8 @@ from typing import Dict, List, Any
 from app.main import app
 from app.infrastructure.secondary.persistence.database import Base, async_engine
 
+# Marquer tous les tests de ce module comme functional
+pytestmark = pytest.mark.functional
 
 scenarios('../features/submit_jobs.feature')
 
