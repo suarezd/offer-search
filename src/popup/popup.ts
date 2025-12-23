@@ -15,7 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const results = document.getElementById("results") as HTMLDivElement;
   const searchInput = document.getElementById("search") as HTMLInputElement;
   const locationInput = document.getElementById("location") as HTMLInputElement;
-  const contractSelect = document.getElementById("contract") as HTMLSelectElement;
+  const companyInput = document.getElementById("company") as HTMLInputElement;
+  const sourceSelect = document.getElementById("source") as HTMLSelectElement;
 
   btnScrapeLinkedIn.onclick = async () => {
     btnScrapeLinkedIn.disabled = true;
@@ -86,7 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   searchInput.addEventListener('input', debounce(() => searchJobsFromAPI(), 500));
   locationInput.addEventListener('input', debounce(() => searchJobsFromAPI(), 500));
-  contractSelect.addEventListener('change', () => searchJobsFromAPI());
+  companyInput.addEventListener('input', debounce(() => searchJobsFromAPI(), 500));
+  sourceSelect.addEventListener('change', () => searchJobsFromAPI());
 
   const resetFiltersBtn = document.createElement('button');
   resetFiltersBtn.textContent = 'Réinitialiser les filtres';
@@ -94,7 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
   resetFiltersBtn.onclick = () => {
     searchInput.value = '';
     locationInput.value = '';
-    contractSelect.value = '';
+    companyInput.value = '';
+    sourceSelect.value = '';
     searchJobsFromAPI();
   };
   document.querySelector('.filters')?.appendChild(resetFiltersBtn);
@@ -106,7 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const filters = {
         search: searchInput.value.trim() || undefined,
         location: locationInput.value.trim() || undefined,
-        company: undefined,
+        company: companyInput.value.trim() || undefined,
+        source: sourceSelect.value || undefined,
         limit: 50,
         offset: 0
       };
