@@ -48,11 +48,15 @@ services:
       DATABASE_URL: postgresql://offeruser:offerpass@db:5432/offerdb
       API_HOST: 0.0.0.0
       API_PORT: 8000
+      SELENIUM_REMOTE_URL: http://selenium-hub:4444/wd/hub
     volumes:
       - ./backend:/app
+      - ./dist:/app/dist
     depends_on:
       db:
         condition: service_healthy
+      selenium-hub:
+        condition: service_started
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   # Selenium Grid Hub (orchestrateur)

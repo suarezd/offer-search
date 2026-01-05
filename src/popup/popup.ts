@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btnRefresh.onclick = async () => {
     await searchJobsFromAPI();
+    await loadDynamicFilters();
   };
 
   searchInput.addEventListener('input', debounce(() => searchJobsFromAPI(), 500));
@@ -181,6 +182,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function formatSourceName(jobSourceName: string): string {
+    const sourceNames: Record<string, string> = {
+      'linkedin': 'LinkedIn',
+      'indeed': 'Indeed',
+      'monster': 'Monster',
+      'apec': 'APEC',
+    };
+
+    return sourceNames[jobSourceName] || jobSourceName;
+  }
+
+  function populateSourceFilter(jobsBySource: any[]) {
+    sourceSelect.innerHTML = '';
+
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Toutes les sources';
+    sourceSelect.appendChild(defaultOption);
+
+    Object.keys(jobsBySource).forEach((source) => {
+      const option = document.createElement('option');
+      option.value = source;
+      option.textContent = formatSourceName(source);
+      sourceSelect.appendChild(option);
+    });
+  }
+
   function debounce(func: Function, wait: number) {
     let timeout: number;
     return (...args: any[]) => {
@@ -189,5 +217,26 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  async function loadDynamicFilters() {
+    try {
+      const response = await fetch(`${API_URL}/api/jobs/stats`);
+      
+      if (!response.ok) {
+        console.error('Failed to load dynamic filters');
+        return;
+      }
+      
+      const stats = await response.json();
+      
+      // Toujours appeler populateSourceFilter, même si vide
+      if (stats.jobs_by_source) {
+        populateSourceFilter(stats.jobs_by_source);
+      }
+    } catch (err) {
+      console.error('Error loading dynamic filters:', err);
+    }
+  }
+
   searchJobsFromAPI();
+  loadDynamicFilters();
 });

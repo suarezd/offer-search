@@ -202,22 +202,38 @@ make test-e2e-api-local
 
 ### Tests E2E Extension
 
-Teste le chargement et le comportement de l'extension Chrome.
+Teste le chargement et le comportement de l'extension Chrome (popup, filtres dynamiques, etc.).
 
+**IMPORTANT - Limitations techniques** :
+Ces tests nécessitent un environnement local avec Chrome installé. Ils ne peuvent pas s'exécuter depuis les conteneurs Docker car les extensions Chrome nécessitent un accès filesystem local.
+
+**Alternative recommandée** : Les tests BDD backend couvrent la logique métier de manière exhaustive :
 ```bash
-# 1. Build l'extension
-make build-chrome
-
-# 2. Lancer les tests (mode headed requis)
-make test-e2e-extension
+docker exec offer-search-api-1 python -m pytest tests/functional/ -k dynamic -v
 ```
 
-⚠️ **Note** : Les extensions Chrome ne fonctionnent pas en mode headless, ces tests nécessitent `--headed`.
+**Exécution locale (optionnelle)** :
+```bash
+# Prérequis : Python 3.11+, Chrome installé localement
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Configuration
+export DATABASE_URL="postgresql://offeruser:offerpass@localhost:5432/offerdb"
+export BACKEND_URL="http://localhost:8000"
+
+# Lancement
+make build-chrome
+docker compose up -d db api
+python -m pytest tests/e2e/extension/ --headed -v
+```
 
 **Tests couverts** :
 - ✅ Chargement de l'extension sans erreur
-- ✅ Background script fonctionne
-- ✅ Popup accessible
+- ✅ Filtres dynamiques (sources basées sur données réelles)
+- ✅ Popup UI et intégrations API
 
 ### Tests E2E Scraping LinkedIn
 

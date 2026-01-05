@@ -43,6 +43,9 @@ help:
 	@echo "  make test-e2e-grid    Run E2E API tests with Selenium Grid"
 	@echo "  make test-e2e-grid-all Run all E2E tests with Selenium Grid"
 	@echo ""
+	@echo "Testing (Complete Suite):"
+	@echo "  make test-complete    Run EVERYTHING (backend + E2E) - Use before PR"
+	@echo ""
 	@echo "Testing (E2E legacy - local mode):"
 	@echo "  make test-e2e         Run all E2E tests (local mode)"
 	@echo "  make test-e2e-api     Run E2E API tests only"
@@ -54,71 +57,71 @@ help:
 	@echo ""
 
 install:
-	@echo "📦 Installing dependencies..."
+	@echo " Installing dependencies..."
 	npm install
 
 build: build-chrome
 
 build-chrome:
-	@echo "🏗️  Building extension for Chrome..."
+	@echo "  Building extension for Chrome..."
 	@if [ ! -d "node_modules" ]; then \
-		echo "📦 Installing dependencies..."; \
+		echo " Installing dependencies..."; \
 		npm install; \
 	fi
 	npm run build
 
 build-firefox:
-	@echo "🦊 Building extension for Firefox..."
+	@echo " Building extension for Firefox..."
 	@if [ ! -d "node_modules" ]; then \
-		echo "📦 Installing dependencies..."; \
+		echo " Installing dependencies..."; \
 		npm install; \
 	fi
 	npm run build
-	@echo "📝 Copying Firefox manifest..."
+	@echo " Copying Firefox manifest..."
 	@if [ -f src/manifest.firefox.json ]; then \
 		cp src/manifest.firefox.json dist/manifest.json; \
-		echo "✅ Firefox manifest copied"; \
+		echo " Firefox manifest copied"; \
 	else \
-		echo "⚠️  Firefox manifest not found"; \
+		echo "  Firefox manifest not found"; \
 	fi
 
 dev:
-	@echo "🚀 Starting development server..."
+	@echo " Starting development server..."
 	@if [ ! -d "node_modules" ]; then \
-		echo "📦 Installing dependencies..."; \
+		echo " Installing dependencies..."; \
 		npm install; \
 	fi
 	npm run dev
 
 clean:
-	@echo "🧹 Cleaning build artifacts..."
+	@echo " Cleaning build artifacts..."
 	rm -rf dist/
 	rm -rf node_modules/
-	@echo "✅ Clean complete"
+	@echo " Clean complete"
 
 docker-build:
-	@echo "🐳 Building Docker image..."
+	@echo " Building Docker image..."
 	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
-	@echo "✅ Docker image built: $(DOCKER_IMAGE):$(DOCKER_TAG)"
+	@echo " Docker image built: $(DOCKER_IMAGE):$(DOCKER_TAG)"
 
 docker-run:
-	@echo "🐳 Building extension in Docker..."
+	@echo " Building extension in Docker..."
 	docker run --rm \
 		-v "$(PWD)/dist:/app/dist" \
 		$(DOCKER_IMAGE):$(DOCKER_TAG)
-	@echo "✅ Build complete in dist/"
+	@echo " Build complete in dist/"
 
 docker-shell:
-	@echo "🐳 Opening shell in Docker container..."
+	@echo " Opening shell in Docker container..."
 	docker run --rm -it \
 		-v "$(PWD):/app" \
 		-w /app \
 		$(DOCKER_IMAGE):$(DOCKER_TAG) /bin/sh
 
 backend-install:
-	@echo "📦 Backend dependencies installation"
+	@echo " Backend dependencies installation"
 	@echo ""
-	@echo "🐳 Docker (recommended):"
+	@echo " Docker (recommended):"
 	@echo "   Dependencies are auto-installed in the Docker image"
 	@echo "   Run: make backend-rebuild"
 	@echo ""
@@ -127,69 +130,68 @@ backend-install:
 	@echo ""
 
 backend-rebuild:
-	@echo "🔨 Rebuilding backend Docker image..."
+	@echo " Rebuilding backend Docker image..."
 	docker compose build api
-	@echo "✅ Backend image rebuilt with latest dependencies"
-	@echo "💡 Run 'make backend-dev' to start the backend"
+	@echo " Backend image rebuilt with latest dependencies"
+	@echo " Run 'make backend-dev' to start the backend"
 
 backend-dev:
-	@echo "🚀 Starting backend + database..."
+	@echo " Starting backend + database..."
 	docker compose up -d db api
-	@echo "✅ Backend running on http://localhost:8000"
-	@echo "✅ Database running on localhost:5432"
+	@echo " Backend running on http://localhost:8000"
+	@echo " Database running on localhost:5432"
 
 backend-stop:
-	@echo "🛑 Stopping backend + database..."
+	@echo " Stopping backend + database..."
 	docker-compose down
 
 start:
-	@echo "🚀 Starting ALL services (backend + DB + frontend)..."
+	@echo " Starting ALL services (backend + DB + frontend)..."
 	@echo ""
 	@if [ ! -d "node_modules" ]; then \
-		echo "📦 Installing frontend dependencies..."; \
+		echo " Installing frontend dependencies..."; \
 		npm install; \
 		echo ""; \
 	fi
-	@echo "📦 Step 1/2: Starting backend + database..."
+	@echo " Step 1/2: Starting backend + database..."
 	docker compose up -d db api
-	@echo "✅ Backend running on http://localhost:8000"
-	@echo "✅ Database running on localhost:5432"
+	@echo " Backend running on http://localhost:8000"
+	@echo " Database running on localhost:5432"
 	@echo ""
-	@echo "📦 Step 2/2: Starting frontend dev server..."
-	@echo "⚠️  Press Ctrl+C to stop the frontend (backend will continue in background)"
+	@echo " Step 2/2: Starting frontend dev server..."
+	@echo "  Press Ctrl+C to stop the frontend (backend will continue in background)"
 	@echo ""
 	npm run dev
 
 stop:
-	@echo "🛑 Stopping ALL services..."
-	@echo "🛑 Stopping backend + database..."
+	@echo " Stopping ALL services..."
+	@echo " Stopping backend + database..."
 	docker compose down
-	@echo "✅ All services stopped"
+	@echo " All services stopped"
 
 api-test:
-	@echo "🧪 Testing API endpoints..."
+	@echo " Testing API endpoints..."
 	@curl -s http://localhost:8000/health | jq . || echo "❌ API not running"
 	@curl -s http://localhost:8000/api/jobs/stats | jq . || echo "❌ Stats endpoint failed"
 
 test-unit:
-	@echo "🧪 Running unit tests..."
-	docker exec offer-search-api-1 python -m pytest -m unit -v
+	@echo " Running unit tests..."
+	docker exec offer-search-api-1 python -m pytest tests/unit/ -v
 
 test-integration:
-	@echo "🧪 Running integration tests..."
-	@echo "⚠️  Ensure database is running (make backend-dev)"
-	docker exec offer-search-api-1 python -m pytest -m integration -v
+	@echo " Running integration tests..."
+	@echo "  Ensure database is running (make backend-dev)"
+	docker exec offer-search-api-1 python -m pytest tests/integration/ -v
 
 test-functional:
-	@echo "🧪 Running functional/BDD tests..."
-	@echo "⚠️  Ensure API is running (make backend-dev)"
-	docker exec offer-search-api-1 python -m pytest -m functional -v
+	@echo " Running functional/BDD tests..."
+	@echo "  Ensure API is running (make backend-dev)"
+	docker exec offer-search-api-1 python -m pytest tests/functional/ -v
 
-test-all:
-	@echo "🧪 Running all backend tests (unit + integration + functional)..."
-	@echo "📦 Ensuring services are running..."
-	@docker compose ps | grep -q "offer-search-api-1" || (echo "🚀 Starting services..." && docker compose up -d db api)
-	@echo "⏳ Waiting for services to be ready..."
+.ensure-services-ready:
+	@echo " Ensuring services are running..."
+	@docker compose ps | grep -q "offer-search-api-1" || (echo " Starting services..." && docker compose up -d db api)
+	@echo " Waiting for services to be ready..."
 	@for i in $$(seq 1 30); do \
 		if docker exec offer-search-api-1 python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" 2>/dev/null; then \
 			break; \
@@ -197,86 +199,82 @@ test-all:
 		echo "   Waiting for API ($$i/30)..."; \
 		sleep 2; \
 	done
-	@echo "✅ Services are ready"
-	@echo "🧪 Running tests (excluding E2E - use 'make test-e2e-grid' for E2E)..."
-	@docker exec offer-search-api-1 python -m pytest -v -m "not e2e" || (echo "❌ Tests failed" && exit 1)
-	@echo "✅ All backend tests passed!"
+	@echo " Services are ready"
 
-test-coverage:
-	@echo "🧪 Running all backend tests with coverage..."
-	@echo "📦 Ensuring services are running..."
-	@docker compose ps | grep -q "offer-search-api-1" || (echo "🚀 Starting services..." && docker compose up -d db api)
-	@echo "⏳ Waiting for services to be ready..."
-	@for i in $$(seq 1 30); do \
-		if docker exec offer-search-api-1 python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" 2>/dev/null; then \
-			break; \
-		fi; \
-		echo "   Waiting for API ($$i/30)..."; \
-		sleep 2; \
-	done
-	@echo "✅ Services are ready"
-	@echo "🧪 Running tests with coverage (excluding E2E)..."
-	@docker exec offer-search-api-1 python -m pytest -v -m "not e2e" --cov=app --cov-report=term-missing --cov-report=html
-	@echo "📊 Coverage report generated in backend/htmlcov/index.html"
+test-all: .ensure-services-ready
+	@echo " Running all backend tests (unit + integration + functional)..."
+	@make test-unit
+	@make test-integration
+	@make test-functional
+	@echo " All backend tests passed!"
+
+test-coverage: .ensure-services-ready
+	@echo " Running all backend tests with coverage..."
+	@docker exec offer-search-api-1 python -m pytest -v tests/unit/ tests/integration/ tests/functional/ --cov=app --cov-report=term-missing --cov-report=html
+	@echo " Coverage report generated in backend/htmlcov/index.html"
+
+test-complete: .ensure-services-ready
+	@echo " Running COMPLETE test suite (backend + E2E)..."
+	@echo ""
+	@echo " Step 1/2: Running backend tests..."
+	@make test-all
+	@echo ""
+	@echo " Step 2/2: Running E2E tests with Selenium Grid..."
+	@make test-e2e-grid
+	@echo ""
+	@echo "  Complete test suite passed! Ready for PR!"
 
 test-watch:
-	@echo "🧪 Running tests in watch mode..."
-	@echo "⚠️  Ensure database and API are running (make backend-dev)"
+	@echo " Running tests in watch mode..."
+	@echo "  Ensure database and API are running (make backend-dev)"
 	docker exec -it offer-search-api-1 python -m pytest -v --cov=app -f
 
 test-ci:
-	@echo "🧪 Running backend tests for CI..."
-	@echo "📦 Starting services..."
+	@echo " Running backend tests for CI..."
+	@echo " Starting services..."
 	@docker compose up -d db api
-	@echo "⏳ Waiting for services to be ready..."
-	@for i in $$(seq 1 30); do \
-		if docker exec offer-search-api-1 python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" 2>/dev/null; then \
-			break; \
-		fi; \
-		echo "   Waiting for API ($$i/30)..."; \
-		sleep 2; \
-	done
-	@echo "✅ Services are ready"
-	@echo "🧪 Running tests with coverage (excluding E2E)..."
-	@docker exec offer-search-api-1 python -m pytest -v -m "not e2e" --cov=app --cov-report=xml --cov-report=term --junitxml=junit.xml || (echo "❌ Tests failed" && docker compose down && exit 1)
-	@echo "✅ Tests passed, stopping services..."
+	@make .ensure-services-ready
+	@echo " Running tests with coverage (excluding E2E)..."
+	@docker exec offer-search-api-1 python -m pytest -v tests/unit/ tests/integration/ tests/functional/ --cov=app --cov-report=xml --cov-report=term --junitxml=junit.xml || (echo "❌ Tests failed" && docker compose down && exit 1)
+	@echo " Tests passed, stopping services..."
 	@docker compose down
-	@echo "✅ CI tests completed successfully!"
+	@echo " CI tests completed successfully!"
 
 test-local-unit:
-	@echo "🧪 Running unit tests (local Python)..."
-	cd backend && python3 -m pytest -m unit -v
+	@echo " Running unit tests (local Python)..."
+	cd backend && python3 -m pytest tests/unit/ -v
 
 test-local-all:
-	@echo "🧪 Running all tests (local Python)..."
-	@echo "⚠️  Ensure TEST_DATABASE_URL is set"
-	cd backend && python3 -m pytest -v
+	@echo " Running all tests (local Python)..."
+	@echo "  Ensure TEST_DATABASE_URL is set"
+	cd backend && python3 -m pytest tests/unit/ tests/integration/ tests/functional/ -v
 
 test: test-all
 
 # Tests E2E avec Selenium
 test-e2e:
-	@echo "🧪 Running all E2E tests with Selenium..."
-	@echo "⚠️  Ensure backend is running (make backend-dev)"
-	@echo "📦 Building extension first..."
-	@make build-chrome
-	docker exec offer-search-api-1 python -m pytest tests/e2e/ -v
+	@echo "Running E2E tests (excluding extension tests)..."
+	@echo "Ensure backend is running (make backend-dev)"
+	docker exec offer-search-api-1 python -m pytest tests/e2e/ -v -m "not extension"
 
 test-e2e-api:
-	@echo "🧪 Running E2E API tests..."
-	@echo "⚠️  Ensure backend is running (make backend-dev)"
+	@echo " Running E2E API tests..."
+	@echo "  Ensure backend is running (make backend-dev)"
 	docker exec offer-search-api-1 python -m pytest tests/e2e/api/ -v
 
 test-e2e-extension:
-	@echo "🧪 Running E2E extension tests..."
-	@echo "⚠️  These tests require --headed mode (visible browser)"
-	@echo "📦 Building extension first..."
-	@make build-chrome
-	docker exec offer-search-api-1 python -m pytest tests/e2e/extension/ -v --headed -m extension
+	@echo "Running E2E extension tests..."
+	@echo "WARNING: These tests require local Chrome installation"
+	@echo "They cannot run from Docker containers"
+	@echo "Alternative: Run tests/functional/ for backend validation"
+	@echo ""
+	@echo "To run locally:"
+	@echo "  cd backend && python -m pytest tests/e2e/extension/ --headed -v"
+	@exit 1
 
 test-e2e-scraping:
-	@echo "🧪 Running E2E scraping tests..."
-	@echo "⚠️  Requires LINKEDIN_TEST_EMAIL and LINKEDIN_TEST_PASSWORD env vars"
+	@echo " Running E2E scraping tests..."
+	@echo "  Requires LINKEDIN_TEST_EMAIL and LINKEDIN_TEST_PASSWORD env vars"
 	@if [ -z "$$LINKEDIN_TEST_EMAIL" ] || [ -z "$$LINKEDIN_TEST_PASSWORD" ]; then \
 		echo "❌ Error: LinkedIn credentials not set"; \
 		echo "   Set them with:"; \
@@ -289,25 +287,25 @@ test-e2e-scraping:
 
 # Tests E2E locaux (sans Docker)
 test-e2e-local:
-	@echo "🧪 Running E2E tests locally (outside Docker)..."
-	@echo "⚠️  Ensure backend is running (make backend-dev)"
-	@echo "⚠️  Requires Chrome/Firefox installed on your machine"
+	@echo " Running E2E tests locally (outside Docker)..."
+	@echo "  Ensure backend is running (make backend-dev)"
+	@echo "  Requires Chrome/Firefox installed on your machine"
 	cd backend && python -m pytest tests/e2e/ -v
 
 test-e2e-api-local:
-	@echo "🧪 Running E2E API tests locally..."
-	@echo "⚠️  Ensure backend is running (make backend-dev)"
+	@echo " Running E2E API tests locally..."
+	@echo "  Ensure backend is running (make backend-dev)"
 	cd backend && python -m pytest tests/e2e/api/ -v
 
 test-e2e-extension-local:
-	@echo "🧪 Running E2E extension tests locally..."
-	@echo "⚠️  Requires --headed mode and Chrome installed"
+	@echo " Running E2E extension tests locally..."
+	@echo "  Requires --headed mode and Chrome installed"
 	@make build-chrome
 	cd backend && python -m pytest tests/e2e/extension/ -v --headed -m extension
 
 test-e2e-scraping-local:
-	@echo "🧪 Running E2E scraping tests locally..."
-	@echo "⚠️  Requires Chrome and LinkedIn credentials"
+	@echo " Running E2E scraping tests locally..."
+	@echo "  Requires Chrome and LinkedIn credentials"
 	@if [ -z "$$LINKEDIN_TEST_EMAIL" ] || [ -z "$$LINKEDIN_TEST_PASSWORD" ]; then \
 		echo "❌ Error: LinkedIn credentials not set"; \
 		exit 1; \
@@ -316,50 +314,50 @@ test-e2e-scraping-local:
 
 # Selenium Grid (Chrome dans Docker - fonctionne sur Linux/macOS/Windows)
 selenium-start:
-	@echo "🚀 Starting Selenium Grid with Chrome..."
+	@echo " Starting Selenium Grid with Chrome..."
 	docker compose up -d selenium-hub chrome
-	@echo "✅ Selenium Grid started"
-	@echo "📊 Grid UI: http://localhost:4444"
+	@echo " Selenium Grid started"
+	@echo " Grid UI: http://localhost:4444"
 	@echo "📺 VNC viewer (voir les tests): http://localhost:7900 (password: secret)"
 
 selenium-start-firefox:
-	@echo "🚀 Starting Selenium Grid with Firefox..."
+	@echo " Starting Selenium Grid with Firefox..."
 	docker compose --profile firefox up -d selenium-hub firefox
-	@echo "✅ Selenium Grid with Firefox started"
-	@echo "📊 Grid UI: http://localhost:4444"
+	@echo " Selenium Grid with Firefox started"
+	@echo " Grid UI: http://localhost:4444"
 	@echo "📺 VNC viewer Firefox: http://localhost:7901 (password: secret)"
 
 selenium-stop:
-	@echo "🛑 Stopping Selenium Grid..."
+	@echo " Stopping Selenium Grid..."
 	docker compose down selenium-hub chrome firefox
-	@echo "✅ Selenium Grid stopped"
+	@echo " Selenium Grid stopped"
 
 selenium-logs:
-	@echo "📋 Showing Selenium Grid logs..."
+	@echo " Showing Selenium Grid logs..."
 	docker compose logs -f selenium-hub chrome
 
 # Tests E2E avec Selenium Grid (universel: Linux/macOS/Windows)
 test-e2e-grid:
-	@echo "🧪 Running E2E tests with Selenium Grid..."
-	@echo "📦 Ensuring Selenium Grid is running..."
+	@echo " Running E2E tests with Selenium Grid..."
+	@echo " Ensuring Selenium Grid is running..."
 	@docker ps | grep -q selenium-hub || make selenium-start
-	@echo "⏳ Waiting for Selenium Grid to be ready..."
+	@echo " Waiting for Selenium Grid to be ready..."
 	@for i in $$(seq 1 30); do \
 		if curl -s http://localhost:4444/wd/hub/status | grep -q "ready.*true"; then \
-			echo "✅ Selenium Grid is ready"; \
+			echo " Selenium Grid is ready"; \
 			break; \
 		fi; \
 		echo "   Waiting for Grid ($$i/30)..."; \
 		sleep 2; \
 	done
-	@echo "🧪 Running tests..."
+	@echo " Running tests..."
 	docker exec -e SELENIUM_REMOTE_URL=http://selenium-hub:4444/wd/hub \
 		-e BACKEND_URL=http://api:8000 \
 		offer-search-api-1 python -m pytest tests/e2e/api/ -v
 
 test-e2e-grid-all:
-	@echo "🧪 Running ALL E2E tests with Selenium Grid..."
+	@echo "Running E2E tests with Selenium Grid (excluding extension tests)..."
 	@make selenium-start
 	docker exec -e SELENIUM_REMOTE_URL=http://selenium-hub:4444/wd/hub \
 		-e BACKEND_URL=http://api:8000 \
-		offer-search-api-1 python -m pytest tests/e2e/ -v
+		offer-search-api-1 python -m pytest tests/e2e/ -v -m "not extension"
