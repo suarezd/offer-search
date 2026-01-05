@@ -1,30 +1,10 @@
-import pytest
 from pytest_bdd import scenarios, given, when, then, parsers
-from httpx import AsyncClient, ASGITransport
+from httpx import AsyncClient
 from typing import Dict, List, Any
 
-from app.main import app
 from app.infrastructure.secondary.persistence.database import Base, async_engine
 
-# Marquer tous les tests de ce module comme functional
-pytestmark = pytest.mark.functional
-
 scenarios('../features/submit_jobs.feature')
-
-
-@pytest.fixture
-async def api_client():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        yield client
-
-
-@pytest.fixture
-async def context():
-    return {
-        "scraped_jobs": [],
-        "response": None,
-        "response_data": None,
-    }
 
 
 @given("the API is running")

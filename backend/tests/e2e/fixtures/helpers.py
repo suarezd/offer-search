@@ -84,3 +84,50 @@ def clear_browser_data(driver: WebDriver):
     driver.delete_all_cookies()
     driver.execute_script("window.localStorage.clear();")
     driver.execute_script("window.sessionStorage.clear();")
+
+
+def submit_jobs_to_api(base_url: str, jobs: list) -> dict:
+    """
+    Soumet des offres d'emploi à l'API.
+
+    Args:
+        base_url: URL de base de l'API (ex: http://localhost:8000)
+        jobs: Liste de dictionnaires représentant les offres
+
+    Returns:
+        Response JSON de l'API
+
+    Example:
+        >>> jobs = [{
+        ...     "id": "linkedin-1",
+        ...     "title": "Python Developer",
+        ...     "company": "TechCorp",
+        ...     "location": "Paris",
+        ...     "url": "https://linkedin.com/jobs/view/1",
+        ...     "source": "linkedin"
+        ... }]
+        >>> result = submit_jobs_to_api("http://localhost:8000", jobs)
+        >>> print(result["inserted"])
+    """
+    import requests
+
+    response = requests.post(
+        f"{base_url}/api/jobs/submit",
+        json={"jobs": jobs}
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def clear_database_via_api(base_url: str):
+    """
+    Nettoie la base de données via l'API.
+
+    Note: Cette fonction suppose l'existence d'un endpoint de nettoyage.
+    Si l'endpoint n'existe pas, il faudra nettoyer directement en DB.
+    """
+    import requests
+
+    # Pour l'instant, on pourrait créer un endpoint DELETE /api/jobs/all
+    # Ou nettoyer manuellement la DB dans les fixtures
+    pass

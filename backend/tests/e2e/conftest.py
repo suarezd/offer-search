@@ -21,7 +21,7 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 
 # Chemins du projet
-PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent.parent  # /app
 EXTENSION_DIST = PROJECT_ROOT / "dist"
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
