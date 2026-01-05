@@ -11,7 +11,7 @@ export class ApiJobRepository implements IJobRepository {
     try {
       const url = `${this.apiUrl}/api/jobs/submit`;
       console.log('[ApiJobRepository] Sending POST request to:', url);
-      console.log('[ApiJobRepository] Request body:', { jobs: jobs.slice(0, 2) }); // Log first 2 jobs only
+      console.log('[ApiJobRepository] Request body:', { jobs: jobs.slice(0, 2) });
 
       const response = await fetch(url, {
         method: 'POST',

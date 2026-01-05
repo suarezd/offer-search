@@ -94,7 +94,6 @@ class SQLAlchemyJobRepository(IJobRepository):
                     await self.session.rollback()
                     continue
 
-            # Commit all at once
             await self.session.commit()
 
             return {

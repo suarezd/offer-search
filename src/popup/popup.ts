@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
     if (!tab?.id || !tab.url) {
-      status.textContent = "⚠️ Impossible de récupérer l'URL de l'onglet actif";
+      status.textContent = "Impossible de récupérer l'URL de l'onglet actif";
       btnScrapeLinkedIn.disabled = false;
       btnScrapeLinkedIn.textContent = "Récupérer mes offres LinkedIn";
       return;
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const canScrape = scraperService.getAvailableScrapers().some(s => s.canScrape(tab.url!));
 
     if (!canScrape) {
-      status.textContent = `⚠️ Source non supportée. Sources disponibles: ${supportedSources.join(', ')}`;
+      status.textContent = `Source non supportée. Sources disponibles: ${supportedSources.join(', ')}`;
       btnScrapeLinkedIn.disabled = false;
       btnScrapeLinkedIn.textContent = "Récupérer mes offres LinkedIn";
       return;
@@ -46,16 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const jobs = await scraperService.scrapeCurrentPage(tab.url, tab.id);
 
       if (jobs.length > 0) {
-        // Récupérer les offres existantes pour les agréger
         const stored = await chrome.storage.local.get(['offers']);
         const existingOffers = (stored.offers || []) as Array<any>;
 
-        // Créer un Map pour dédupliquer par ID
         const offersMap = new Map();
         existingOffers.forEach(job => offersMap.set(job.id, job));
         jobs.forEach(job => offersMap.set(job.id, job));
 
-        // Convertir en array
         const aggregatedOffers = Array.from(offersMap.values());
         const newJobsCount = jobs.length;
         const totalCount = aggregatedOffers.length;
@@ -67,10 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const newCount = totalCount - existingOffers.length;
-        status.textContent = `✓ ${newJobsCount} offres scrapées (+${newCount} nouvelles) – Total: ${totalCount}`;
+        status.textContent = `${newJobsCount} offres scrapées (+${newCount} nouvelles) - Total: ${totalCount}`;
         displayJobs(aggregatedOffers);
       } else {
-        status.textContent = "⚠️ Aucune offre trouvée – scroll la page pour charger plus d'offres";
+        status.textContent = "Aucune offre trouvée - scroll la page pour charger plus d'offres";
       }
     } catch (err) {
       console.error(err);
@@ -105,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function searchJobsFromAPI() {
     try {
-      status.textContent = "🔍 Recherche en cours...";
+      status.textContent = "Recherche en cours...";
 
       const filters = {
         search: searchInput.value.trim() || undefined,
@@ -123,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (!response.ok) {
-        status.textContent = "⚠️ Erreur de connexion à l'API";
+        status.textContent = "Erreur de connexion à l'API";
         loadStoredOffers();
         return;
       }
@@ -131,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const jobs = await response.json();
 
       if (jobs.length > 0) {
-        status.textContent = `✓ ${jobs.length} offres trouvées`;
+        status.textContent = `${jobs.length} offres trouvées`;
         displayJobs(jobs);
       } else {
         status.textContent = "Aucune offre trouvée avec ces filtres";
@@ -139,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.error('Erreur API:', err);
-      status.textContent = "⚠️ API non disponible - chargement du cache local";
+      status.textContent = "API non disponible - chargement du cache local";
       loadStoredOffers();
     }
   }
@@ -155,8 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
           ${j.source ? `<span class="tag tag-source">${j.source.charAt(0).toUpperCase() + j.source.slice(1)}</span>` : ''}
         </div>
         <div class="tags">
-          <span class="tag">📍 ${j.location}</span>
-          <span class="tag">🕒 ${j.posted_date || j.postedDate}</span>
+          <span class="tag">${j.location}</span>
+          <span class="tag">${j.posted_date || j.postedDate}</span>
         </div>
         ${j.description ? `<div class="offer-description">${j.description}</div>` : ''}
       </div>
@@ -170,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await chrome.storage.local.get(['offers', 'lastUpdate', 'total']);
 
       if (data.offers && Array.isArray(data.offers) && data.offers.length > 0) {
-        status.textContent = `📦 ${data.total || data.offers.length} offres en cache (dernière màj: ${data.lastUpdate || 'inconnue'})`;
+        status.textContent = `${data.total || data.offers.length} offres en cache (dernière màj: ${data.lastUpdate || 'inconnue'})`;
         displayJobs(data.offers);
       } else {
         status.textContent = "Aucune offre en cache. Va sur LinkedIn Jobs et clique sur 'Récupérer mes offres'";
@@ -220,15 +217,14 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadDynamicFilters() {
     try {
       const response = await fetch(`${API_URL}/api/jobs/stats`);
-      
+
       if (!response.ok) {
         console.error('Failed to load dynamic filters');
         return;
       }
-      
+
       const stats = await response.json();
-      
-      // Toujours appeler populateSourceFilter, même si vide
+
       if (stats.jobs_by_source) {
         populateSourceFilter(stats.jobs_by_source);
       }
