@@ -17,7 +17,7 @@ def wait_for_page_load(driver: WebDriver, timeout: int = 10):
 
 
 def take_screenshot(driver: WebDriver, filename: str):
-    """Prend une capture d'écran (utile pour le debug)."""
+    """Prend une capture d'écran."""
     driver.save_screenshot(f"screenshots/{filename}")
 
 
@@ -34,7 +34,7 @@ def has_errors_in_console(driver: WebDriver) -> bool:
 
 def inject_script(driver: WebDriver, script_path: str):
     """Injecte un script JavaScript depuis un fichier."""
-    with open(script_path, 'r') as f:
+    with open(script_path, 'r', encoding='utf-8') as f:
         script = f.read()
     return driver.execute_script(script)
 
@@ -61,7 +61,6 @@ def get_extension_id(driver: WebDriver) -> str:
     driver.get("chrome://extensions/")
     time.sleep(2)
 
-    # JavaScript pour extraire l'ID de l'extension
     script = """
     const extensions = document.querySelector('extensions-manager')
         .shadowRoot.querySelector('extensions-item-list')
@@ -80,7 +79,7 @@ def get_extension_id(driver: WebDriver) -> str:
 
 
 def clear_browser_data(driver: WebDriver):
-    """Nettoie les cookies et le localStorage."""
+    """Nettoie les cookies, localStorage et sessionStorage."""
     driver.delete_all_cookies()
     driver.execute_script("window.localStorage.clear();")
     driver.execute_script("window.sessionStorage.clear();")
@@ -127,7 +126,4 @@ def clear_database_via_api(base_url: str):
     Si l'endpoint n'existe pas, il faudra nettoyer directement en DB.
     """
     import requests
-
-    # Pour l'instant, on pourrait créer un endpoint DELETE /api/jobs/all
-    # Ou nettoyer manuellement la DB dans les fixtures
     pass

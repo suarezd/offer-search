@@ -75,11 +75,9 @@ export class LinkedInScraper implements IJobScraper {
     console.log('[LinkedInScraper] Starting scrape for tabId:', tabId);
 
     try {
-      // Inject the extraction function into the page
       const response = await chrome.scripting.executeScript({
         target: { tabId },
         func: (selectors: ScraperSelectors, source: JobSource) => {
-          // This function runs in the page context
           const jobs: any[] = [];
 
           console.log('[Offer Search] ===== DÉBUT DU SCRAPING =====');
@@ -89,27 +87,25 @@ export class LinkedInScraper implements IJobScraper {
           let cards: NodeListOf<Element> | null = null;
           let usedSelector = '';
 
-          // Try each selector until we find cards
           for (const selector of selectors.cardContainer) {
             const found = document.querySelectorAll(selector);
-            console.log(`[Offer Search] Sélecteur testé: "${selector}" → ${found.length} éléments trouvés`);
+            console.log(`[Offer Search] Sélecteur testé: "${selector}" - ${found.length} éléments trouvés`);
             if (found.length > 0) {
               cards = found;
               usedSelector = selector;
-              console.log(`[Offer Search] ✓ Sélecteur retenu: ${selector}`);
+              console.log(`[Offer Search] Sélecteur retenu: ${selector}`);
               break;
             }
           }
 
           if (!cards || cards.length === 0) {
-            console.error('[Offer Search] ❌ AUCUNE CARTE TROUVÉE');
+            console.error('[Offer Search] AUCUNE CARTE TROUVÉE');
             console.log('[Offer Search] Structure HTML actuelle:', document.body.innerHTML.substring(0, 500));
             return [];
           }
 
-          console.log(`[Offer Search] ✓ ${cards.length} cartes détectées avec "${usedSelector}"`);
+          console.log(`[Offer Search] ${cards.length} cartes détectées avec "${usedSelector}"`);
 
-          // Helper function to query selector with fallbacks
           const querySelector = (parent: Element, selectors: string[]): Element | null => {
             for (const selector of selectors) {
               const element = parent.querySelector(selector);

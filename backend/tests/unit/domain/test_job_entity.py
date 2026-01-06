@@ -4,7 +4,6 @@ from datetime import datetime
 from app.domain.entities.job import Job
 
 
-@pytest.mark.unit
 class TestJobEntityCreation:
 
     def test_create_job_with_all_fields(self, valid_job_data):
@@ -38,7 +37,6 @@ class TestJobEntityCreation:
         assert job.updated_at is None
 
 
-@pytest.mark.unit
 class TestJobEntityValidation:
 
     @pytest.mark.parametrize("field_name,error_field", [
@@ -112,7 +110,6 @@ class TestJobEntityValidation:
             Job(**valid_job_data)
 
 
-@pytest.mark.unit
 class TestJobEntityMethods:
 
     def test_is_from_linkedin_returns_true_for_linkedin_source(self, valid_job):
