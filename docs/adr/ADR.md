@@ -310,6 +310,11 @@ Ce projet suit le format ADR (Architecture Decision Records) pour documenter les
    - Statut : Accepté et implémenté
    - Impact : Cohérence totale frontend/backend, nomenclature claire
 
+6. **[ADR-006 : Intégration du scraper Indeed](006-integration-indeed-scraper.md)**
+   - Décision : Ajouter Indeed comme source de jobs aux côtés de LinkedIn
+   - Statut : Accepté et implémenté
+   - Impact : Extension multi-sources, démonstration de l'extensibilité de l'architecture
+
 ### Template ADR
 
 Pour créer un nouvel ADR, utilisez le template : [000-template.md](000-template.md)

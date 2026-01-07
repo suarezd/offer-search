@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Offer Search",
-  "version": "1.6.0",
-  "description": "Récupère tes offres LinkedIn",
+  "version": "2.0.0",
+  "description": "Récupère tes offres d'emploi (LinkedIn, Indeed)",
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Offer Search"
@@ -13,6 +13,8 @@
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
     "https://*.linkedin.com/*",
+    "https://*.indeed.com/*",
+    "https://*.indeed.fr/*",
     "http://localhost:8000/*"
   ],
   "icons": {
