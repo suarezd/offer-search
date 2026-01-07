@@ -2,12 +2,12 @@ from typing import AsyncGenerator
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.secondary.persistence.database import get_async_db
-from app.infrastructure.secondary.persistence.sqlalchemy_job_repository import SQLAlchemyJobRepository
+from app.infrastructure.persistence.database import get_async_db
+from app.infrastructure.persistence.sqlalchemy_job_repository import SQLAlchemyJobRepository
 from app.domain.ports.job_repository import IJobRepository
-from app.application.use_cases.submit_jobs import SubmitJobsUseCase
-from app.application.use_cases.search_jobs import SearchJobsUseCase
-from app.application.use_cases.get_stats import GetStatsUseCase
+from app.application.commands.submit_jobs_command import SubmitJobsCommand
+from app.application.queries.search_jobs_query import SearchJobsQuery
+from app.application.queries.get_stats_query import GetStatsQuery
 
 
 async def get_job_repository(
@@ -16,19 +16,19 @@ async def get_job_repository(
     return SQLAlchemyJobRepository(session)
 
 
-async def get_submit_jobs_use_case(
+async def get_submit_jobs_command(
     repository: IJobRepository = Depends(get_job_repository)
-) -> SubmitJobsUseCase:
-    return SubmitJobsUseCase(repository)
+) -> SubmitJobsCommand:
+    return SubmitJobsCommand(repository)
 
 
-async def get_search_jobs_use_case(
+async def get_search_jobs_query(
     repository: IJobRepository = Depends(get_job_repository)
-) -> SearchJobsUseCase:
-    return SearchJobsUseCase(repository)
+) -> SearchJobsQuery:
+    return SearchJobsQuery(repository)
 
 
-async def get_get_stats_use_case(
+async def get_get_stats_query(
     repository: IJobRepository = Depends(get_job_repository)
-) -> GetStatsUseCase:
-    return GetStatsUseCase(repository)
+) -> GetStatsQuery:
+    return GetStatsQuery(repository)

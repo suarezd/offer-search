@@ -7,11 +7,30 @@ from app.domain.exceptions.job_exceptions import JobValidationError, RepositoryE
 from app.application.dto.job_dto import JobCreateDTO
 
 
-class SubmitJobsUseCase:
+class SubmitJobsCommand:
+    """
+    Command pour soumettre des jobs à la base de données.
+
+    Responsabilité : Créer et persister de nouveaux jobs.
+    """
+
     def __init__(self, job_repository: IJobRepository):
         self.job_repository = job_repository
 
     async def execute(self, jobs_dto: List[JobCreateDTO]) -> Dict[str, Any]:
+        """
+        Exécute la commande de soumission de jobs.
+
+        Args:
+            jobs_dto: Liste des jobs à créer
+
+        Returns:
+            Dictionnaire contenant le résultat de la soumission
+
+        Raises:
+            JobValidationError: Si les données sont invalides
+            RepositoryError: Si une erreur de persistence survient
+        """
         if not jobs_dto:
             return {
                 "success": True,

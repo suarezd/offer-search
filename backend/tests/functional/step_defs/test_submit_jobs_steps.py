@@ -2,7 +2,7 @@ from pytest_bdd import scenarios, given, when, then, parsers
 from httpx import AsyncClient
 from typing import Dict, List, Any
 
-from app.infrastructure.secondary.persistence.database import Base, async_engine
+from app.infrastructure.persistence.database import Base, async_engine
 
 scenarios('../features/submit_jobs.feature')
 

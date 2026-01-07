@@ -9,7 +9,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         background: resolve(__dirname, "src/background.ts"),
-        popup: resolve(__dirname, "src/popup/popup.ts"),
+        popup: resolve(__dirname, "src/infrastructure/ui/popup/popup.ts"),
       },
       output: {
         entryFileNames: "[name].js",
@@ -22,8 +22,8 @@ export default defineConfig({
       name: "copy-all-files",
       writeBundle() {
         cpSync("src/manifest.json", "dist/manifest.json");
-        cpSync("src/popup/popup.html", "dist/popup/popup.html");
-        cpSync("src/popup/popup.css", "dist/popup/popup.css");
+        cpSync("src/infrastructure/ui/popup/popup.html", "dist/popup/popup.html");
+        cpSync("src/infrastructure/ui/popup/popup.css", "dist/popup/popup.css");
         cpSync("public/icons", "dist/icons", { recursive: true });
       },
     },

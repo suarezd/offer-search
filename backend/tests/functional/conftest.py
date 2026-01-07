@@ -10,7 +10,7 @@ from httpx import AsyncClient, ASGITransport
 from typing import Dict, Any
 
 from app.main import app
-from app.infrastructure.secondary.persistence.database import Base, async_engine
+from app.infrastructure.persistence.database import Base, async_engine
 
 
 # ============================================================================
