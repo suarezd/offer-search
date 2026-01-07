@@ -225,6 +225,28 @@ make test-coverage
 - **Health** : http://localhost:8000/health
 - **PostgreSQL** : localhost:5432
 
+## 🌐 Utilisation de l'extension
+
+L'extension supporte maintenant **deux sources** de scraping :
+
+### LinkedIn
+1. Navigue vers [LinkedIn Jobs](https://linkedin.com/jobs/search/)
+2. Ouvre l'extension
+3. Clique sur "Récupérer les offres"
+
+### Indeed
+1. Navigue vers [Indeed FR](https://fr.indeed.com/jobs) ou [Indeed US](https://indeed.com/jobs)
+2. Ouvre l'extension
+3. Clique sur "Récupérer les offres"
+
+### Filtres
+- **Recherche** : Par titre, technologie, description
+- **Localisation** : Ville ou Remote
+- **Entreprise** : Nom de l'entreprise
+- **Source** : LinkedIn, Indeed, ou toutes les sources
+
+**💡 Astuce** : L'extension détecte automatiquement la source selon l'URL active !
+
 ## 🆘 Dépannage
 
 ### Les tests échouent
