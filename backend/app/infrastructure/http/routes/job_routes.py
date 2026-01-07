@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 
-from app.application.use_cases.submit_jobs import SubmitJobsUseCase
-from app.application.use_cases.search_jobs import SearchJobsUseCase
-from app.application.use_cases.get_stats import GetStatsUseCase
+from app.application.commands.submit_jobs_command import SubmitJobsCommand
+from app.application.queries.search_jobs_query import SearchJobsQuery
+from app.application.queries.get_stats_query import GetStatsQuery
 from app.application.dto.job_dto import (
     JobsSubmitRequestDTO,
     JobsSubmitResponseDTO,
@@ -17,9 +17,9 @@ from app.domain.exceptions.job_exceptions import (
     InvalidSearchCriteriaError
 )
 from app.infrastructure.dependencies import (
-    get_submit_jobs_use_case,
-    get_search_jobs_use_case,
-    get_get_stats_use_case
+    get_submit_jobs_command,
+    get_search_jobs_query,
+    get_get_stats_query
 )
 
 
@@ -45,10 +45,10 @@ def _job_to_response_dto(job) -> JobResponseDTO:
 @router.post("/submit", response_model=JobsSubmitResponseDTO)
 async def submit_jobs(
     request: JobsSubmitRequestDTO,
-    use_case: SubmitJobsUseCase = Depends(get_submit_jobs_use_case)
+    command: SubmitJobsCommand = Depends(get_submit_jobs_command)
 ):
     try:
-        result = await use_case.execute(request.jobs)
+        result = await command.execute(request.jobs)
         return JobsSubmitResponseDTO(**result)
 
     except JobValidationError as e:
@@ -62,10 +62,10 @@ async def submit_jobs(
 @router.post("/search", response_model=List[JobResponseDTO])
 async def search_jobs(
     filter_dto: JobFilterDTO,
-    use_case: SearchJobsUseCase = Depends(get_search_jobs_use_case)
+    query: SearchJobsQuery = Depends(get_search_jobs_query)
 ):
     try:
-        jobs = await use_case.execute(filter_dto)
+        jobs = await query.execute(filter_dto)
         return [_job_to_response_dto(job) for job in jobs]
 
     except InvalidSearchCriteriaError as e:
@@ -78,10 +78,10 @@ async def search_jobs(
 
 @router.get("/stats", response_model=JobStatsDTO)
 async def get_stats(
-    use_case: GetStatsUseCase = Depends(get_get_stats_use_case)
+    query: GetStatsQuery = Depends(get_get_stats_query)
 ):
     try:
-        stats = await use_case.execute()
+        stats = await query.execute()
         return stats
 
     except RepositoryError as e:

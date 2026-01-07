@@ -78,31 +78,29 @@ backend/app/
 │   ├── entities/job.py             # Entité Job
 │   ├── ports/job_repository.py     # Interface IJobRepository
 │   └── exceptions/job_exceptions.py
-├── application/                     # 🎯 Use Cases
-│   ├── use_cases/
-│   │   ├── submit_jobs.py
-│   │   └── search_jobs.py
+├── application/                     # 🎯 Use Cases (CQRS)
+│   ├── commands/                   # SubmitJobsCommand
+│   ├── queries/                    # SearchJobsQuery, GetStatsQuery
 │   └── dto/job_dto.py
-├── adapters/                        # 🔌 Adapters
-│   ├── primary/http/routes/        # Adaptateur HTTP
-│   └── secondary/persistence/      # Adaptateur PostgreSQL
-└── infrastructure/                  # ⚙️ Config
-    └── dependencies.py
+├── infrastructure/                  # 🔌 Infrastructure
+│   ├── http/                       # Routes HTTP
+│   ├── persistence/                # PostgreSQL Repository
+│   └── dependencies.py             # Configuration DI
 ```
 
 #### Frontend (TypeScript/Extension Chrome)
 
 ```
-extension/src/
+src/
 ├── domain/                    # Cœur métier
 │   ├── entities/
-│   └── ports/
-├── application/              # Services
-│   └── services/
-├── adapters/                 # Adapters
-│   ├── ui/                  # Popup UI
-│   └── api/                 # API Client
-└── infrastructure/          # Config
+│   └── ports/                # IJobRepository, IJobScraper
+├── application/              # Use Cases (CQRS)
+│   ├── commands/             # ScrapeJobsCommand, SubmitJobsCommand
+│   └── queries/              # SearchJobsQuery, GetStatsQuery
+└── infrastructure/           # Infrastructure
+    ├── ui/                   # Interface utilisateur (Popup)
+    └── api/                  # Communication réseau (Repository, Scrapers)
 ```
 
 ---
@@ -302,6 +300,16 @@ Ce projet suit le format ADR (Architecture Decision Records) pour documenter les
    - Statut : Accepté et implémenté
    - Impact : +60% de performance, meilleure scalabilité
 
+4. **[ADR-004 : CQRS Simple pour le Frontend](004-cqrs-simple-frontend.md)**
+   - Décision : Adopter le pattern CQRS simple pour séparer Commands et Queries
+   - Statut : Accepté et implémenté
+   - Impact : Meilleure clarté architecturale, maintenabilité améliorée
+
+5. **[ADR-005 : CQRS Simple pour le Backend](005-cqrs-simple-backend.md)**
+   - Décision : Adopter CQRS simple et simplifier la nomenclature infrastructure
+   - Statut : Accepté et implémenté
+   - Impact : Cohérence totale frontend/backend, nomenclature claire
+
 ### Template ADR
 
 Pour créer un nouvel ADR, utilisez le template : [000-template.md](000-template.md)
@@ -324,5 +332,5 @@ Pour créer un nouvel ADR, utilisez le template : [000-template.md](000-template
 
 ---
 
-**Dernière mise à jour** : 2025-12-20
+**Dernière mise à jour** : 2026-01-07
 **Mainteneurs** : @suarezd

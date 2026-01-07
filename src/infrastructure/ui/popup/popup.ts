@@ -1,12 +1,19 @@
-import { JobScraperService } from '../application/services/JobScraperService';
-import { LinkedInScraper } from '../infrastructure/secondary/scrapers/LinkedInScraper';
-import { ApiJobRepository } from '../infrastructure/secondary/ApiJobRepository';
+import { ScrapeJobsCommand } from '../../../application/commands/ScrapeJobsCommand';
+import { SearchJobsQuery } from '../../../application/queries/SearchJobsQuery';
+import { GetStatsQuery } from '../../../application/queries/GetStatsQuery';
+import { GetAvailableScrapersQuery } from '../../../application/queries/GetAvailableScrapersQuery';
+import { LinkedInScraper } from '../../api/scrapers/LinkedInScraper';
+import { ApiJobRepository } from '../../api/ApiJobRepository';
 
 const API_URL = "http://localhost:8000";
 
 const repository = new ApiJobRepository(API_URL);
 const linkedInScraper = new LinkedInScraper();
-const scraperService = new JobScraperService([linkedInScraper], repository);
+
+const scrapeJobsCommand = new ScrapeJobsCommand([linkedInScraper], repository);
+const searchJobsQuery = new SearchJobsQuery(repository);
+const getStatsQuery = new GetStatsQuery(repository);
+const getAvailableScrapersQuery = new GetAvailableScrapersQuery([linkedInScraper]);
 
 document.addEventListener("DOMContentLoaded", () => {
   const btnScrapeLinkedIn = document.getElementById("scrape-linkedin") as HTMLButtonElement;
@@ -32,8 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const supportedSources = scraperService.getSupportedSources();
-    const canScrape = scraperService.getAvailableScrapers().some(s => s.canScrape(tab.url!));
+    const supportedSources = getAvailableScrapersQuery.getSupportedSources();
+    const canScrape = getAvailableScrapersQuery.execute().some(s => s.canScrape(tab.url!));
 
     if (!canScrape) {
       status.textContent = `Source non supportée. Sources disponibles: ${supportedSources.join(', ')}`;
@@ -43,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const jobs = await scraperService.scrapeCurrentPage(tab.url, tab.id);
+      const jobs = await scrapeJobsCommand.execute(tab.url, tab.id);
 
       if (jobs.length > 0) {
         const stored = await chrome.storage.local.get(['offers']);

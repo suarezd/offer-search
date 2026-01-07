@@ -9,7 +9,7 @@ from pytest_bdd import scenarios, given, when, then, parsers
 from httpx import AsyncClient
 from typing import Dict, Any
 
-from app.infrastructure.secondary.persistence.database import Base, async_engine
+from app.infrastructure.persistence.database import Base, async_engine
 
 # Charger tous les scénarios du fichier .feature
 scenarios('../features/dynamic_filters.feature')

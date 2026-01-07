@@ -3,11 +3,26 @@ from app.domain.exceptions.job_exceptions import RepositoryError
 from app.application.dto.job_dto import JobStatsDTO
 
 
-class GetStatsUseCase:
+class GetStatsQuery:
+    """
+    Query pour récupérer les statistiques des jobs.
+
+    Responsabilité : Lecture seule, agrégation de données.
+    """
+
     def __init__(self, job_repository: IJobRepository):
         self.job_repository = job_repository
 
     async def execute(self) -> JobStatsDTO:
+        """
+        Exécute la requête de récupération des statistiques.
+
+        Returns:
+            Statistiques des jobs
+
+        Raises:
+            RepositoryError: Si une erreur de lecture survient
+        """
         total_jobs = await self.job_repository.count_total()
         total_companies = await self.job_repository.count_distinct_companies()
         total_locations = await self.job_repository.count_distinct_locations()
