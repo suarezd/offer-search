@@ -3,17 +3,19 @@ import { SearchJobsQuery } from '../../../application/queries/SearchJobsQuery';
 import { GetStatsQuery } from '../../../application/queries/GetStatsQuery';
 import { GetAvailableScrapersQuery } from '../../../application/queries/GetAvailableScrapersQuery';
 import { LinkedInScraper } from '../../api/scrapers/LinkedInScraper';
+import { IndeedScraper } from '../../api/scrapers/IndeedScraper';
 import { ApiJobRepository } from '../../api/ApiJobRepository';
 
 const API_URL = "http://localhost:8000";
 
 const repository = new ApiJobRepository(API_URL);
 const linkedInScraper = new LinkedInScraper();
+const indeedScraper = new IndeedScraper();
 
-const scrapeJobsCommand = new ScrapeJobsCommand([linkedInScraper], repository);
+const scrapeJobsCommand = new ScrapeJobsCommand([linkedInScraper, indeedScraper], repository);
 const searchJobsQuery = new SearchJobsQuery(repository);
 const getStatsQuery = new GetStatsQuery(repository);
-const getAvailableScrapersQuery = new GetAvailableScrapersQuery([linkedInScraper]);
+const getAvailableScrapersQuery = new GetAvailableScrapersQuery([linkedInScraper, indeedScraper]);
 
 document.addEventListener("DOMContentLoaded", () => {
   const btnScrapeLinkedIn = document.getElementById("scrape-linkedin") as HTMLButtonElement;
@@ -35,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tab?.id || !tab.url) {
       status.textContent = "Impossible de récupérer l'URL de l'onglet actif";
       btnScrapeLinkedIn.disabled = false;
-      btnScrapeLinkedIn.textContent = "Récupérer mes offres LinkedIn";
+      btnScrapeLinkedIn.textContent = "Récupérer les offres";
       return;
     }
 
@@ -45,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!canScrape) {
       status.textContent = `Source non supportée. Sources disponibles: ${supportedSources.join(', ')}`;
       btnScrapeLinkedIn.disabled = false;
-      btnScrapeLinkedIn.textContent = "Récupérer mes offres LinkedIn";
+      btnScrapeLinkedIn.textContent = "Récupérer les offres";
       return;
     }
 
@@ -82,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     btnScrapeLinkedIn.disabled = false;
-    btnScrapeLinkedIn.textContent = "Récupérer mes offres LinkedIn";
+    btnScrapeLinkedIn.textContent = "Récupérer les offres";
   };
 
   btnRefresh.onclick = async () => {
@@ -177,7 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
         status.textContent = `${data.total || data.offers.length} offres en cache (dernière màj: ${data.lastUpdate || 'inconnue'})`;
         displayJobs(data.offers);
       } else {
-        status.textContent = "Aucune offre en cache. Va sur LinkedIn Jobs et clique sur 'Récupérer mes offres'";
+        status.textContent = "Aucune offre en cache. Va sur LinkedIn ou Indeed et clique sur 'Récupérer les offres'";
         results.innerHTML = "";
       }
     } catch (err) {

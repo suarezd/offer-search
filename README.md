@@ -3,7 +3,7 @@
 [![Tests](https://github.com/suarezd/offer-search/actions/workflows/tests.yml/badge.svg)](https://github.com/suarezd/offer-search/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/suarezd/offer-search/branch/master/graph/badge.svg)](https://codecov.io/gh/suarezd/offer-search)
 
-Extension Chrome/Firefox + Backend FastAPI pour centraliser les offres d'emploi LinkedIn avec architecture hexagonale.
+Extension Chrome/Firefox + Backend FastAPI pour centraliser les offres d'emploi (LinkedIn, Indeed) avec architecture hexagonale.
 
 ## 🚀 Quick Start
 
