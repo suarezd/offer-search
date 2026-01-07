@@ -8,6 +8,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Ajouté
+- **Support Indeed** comme deuxième source de scraping
+  - Nouveau scraper `IndeedScraper` implémentant `IJobScraper`
+  - Support des domaines `indeed.com` et `indeed.fr`
+  - Multiples sélecteurs DOM de fallback pour robustesse
+  - Documentation complète (ADR-006, sélecteurs DOM)
+- **Extension multi-sources**
+  - Détection automatique de la source selon l'URL
+  - Filtre par source dans l'interface (LinkedIn, Indeed)
+  - Architecture extensible pour ajouter facilement d'autres sources
 - **Auto-installation des dépendances npm** dans le Makefile
   - `make build`, `make build-chrome`, `make build-firefox` vérifient et installent automatiquement `node_modules` si absent
   - `make dev` et `make start` incluent l'auto-installation
@@ -17,6 +26,9 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
   - Problèmes de permissions Docker
 
 ### Corrigé
+- **Bug URLs Indeed tronquées**
+  - Les URLs Indeed contiennent maintenant tous les paramètres nécessaires (`jk=`, `bb=`, etc.)
+  - Les liens vers les offres Indeed fonctionnent correctement
 - **Problèmes de permissions Docker** sur les fichiers générés
   - Dockerfile : Utilise maintenant l'utilisateur `node` (UID/GID 1000) au lieu de root
   - docker-compose.yml : Configure `user: "${UID:-1000}:${GID:-1000}"` pour les services extension et extension-dev
@@ -25,12 +37,19 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
   - L'auto-installation des dépendances résout ce problème automatiquement
 
 ### Modifié
+- **Extension version 2.0.0**
+  - Description : "Récupère tes offres d'emploi (LinkedIn, Indeed)"
+  - Permissions étendues pour `indeed.com` et `indeed.fr`
+  - Interface générique supportant plusieurs sources
 - **Documentation mise à jour**
-  - README.md : Ajout de notes sur l'auto-installation, instructions Firefox complètes, workflow simplifié
+  - README.md : Mention d'Indeed dans la description, auto-installation
+  - CHANGELOG.md : Ajout du support Indeed
+  - ADR.md : Référence ADR-006 (intégration Indeed)
   - QUICK_START.md : Guide avec auto-installation, section dépannage étendue
   - Makefile help : Annotations sur l'auto-installation des dépendances
 
 ### À venir
+- Support d'autres sources (Monster, Welcome to the Jungle, APEC)
 - Tests fonctionnels BDD (step definitions complètes)
 - Tests use cases (Application layer)
 - Frontend pour visualisation des offres

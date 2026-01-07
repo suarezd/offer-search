@@ -1,6 +1,6 @@
 # Documentation Offer Search
 
-Bienvenue dans la documentation du projet **Offer Search**, une extension navigateur pour centraliser et gérer les offres d'emploi LinkedIn.
+Bienvenue dans la documentation du projet **Offer Search**, une extension navigateur pour centraliser et gérer les offres d'emploi (LinkedIn, Indeed).
 
 ---
 
@@ -18,6 +18,9 @@ Bienvenue dans la documentation du projet **Offer Search**, une extension naviga
    - [ADR-001: Architecture hexagonale backend](adr/001-hexagonal-architecture-backend.md)
    - [ADR-002: Architecture hexagonale frontend](adr/002-hexagonal-architecture-frontend.md)
    - [ADR-003: Opérations asynchrones avec asyncpg](adr/003-async-database-operations.md)
+   - [ADR-004: CQRS simple pour le frontend](adr/004-cqrs-simple-frontend.md)
+   - [ADR-005: CQRS simple pour le backend](adr/005-cqrs-simple-backend.md)
+   - [ADR-006: Intégration du scraper Indeed](adr/006-integration-indeed-scraper.md)
 
 ### 🚀 Démarrage Rapide
 
@@ -37,7 +40,7 @@ Bienvenue dans la documentation du projet **Offer Search**, une extension naviga
 
 **Offer Search** est une solution complète pour centraliser les offres d'emploi :
 
-- 🔵 **Extension navigateur** (Chrome & Firefox) pour scraper LinkedIn
+- 🔵 **Extension navigateur** (Chrome & Firefox) pour scraper LinkedIn et Indeed
 - 🟢 **API Backend** FastAPI avec PostgreSQL
 - 📊 **Interface web** pour visualiser et filtrer les offres
 
@@ -288,8 +291,10 @@ Documentation interactive: http://localhost:8000/docs
 
 ### Moyen Terme (Sprint 3-6)
 
-- [ ] Support Indeed comme source
+- [x] Support Indeed comme source
 - [ ] Support Monster comme source
+- [ ] Support Welcome to the Jungle
+- [ ] Support APEC
 - [ ] Cache Redis
 - [ ] Pagination cursor-based
 - [ ] Authentification JWT
@@ -328,12 +333,15 @@ Documentation interactive: http://localhost:8000/docs
 
 ## 📝 Historique des Versions
 
-### Version 2.0.0 (2025-12-12)
+### Version 2.0.0 (2026-01-07)
 
+- ✅ Support Indeed comme deuxième source de scraping
+- ✅ Extension multi-sources (LinkedIn + Indeed)
+- ✅ Pattern CQRS simple (frontend + backend)
 - ✅ Architecture hexagonale backend
 - ✅ Support asyncpg
 - ✅ Refactoring complet backend
-- ✅ Documentation ADR
+- ✅ Documentation ADR (6 ADRs)
 
 ### Version 1.0.0 (2025-12-11)
 
@@ -345,4 +353,4 @@ Documentation interactive: http://localhost:8000/docs
 
 ---
 
-**Dernière mise à jour**: 2025-12-12
+**Dernière mise à jour**: 2026-01-07
