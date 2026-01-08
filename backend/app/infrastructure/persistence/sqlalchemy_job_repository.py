@@ -157,6 +157,8 @@ class SQLAlchemyJobRepository(IJobRepository):
             if source:
                 stmt = stmt.where(JobModel.source == source)
 
+            # Order by created_at DESC (most recent first) for consistent pagination
+            stmt = stmt.order_by(JobModel.created_at.desc())
             stmt = stmt.limit(limit).offset(offset)
             result = await self.session.execute(stmt)
             models = result.scalars().all()

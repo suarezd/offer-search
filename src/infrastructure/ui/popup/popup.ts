@@ -7,6 +7,7 @@ import { IndeedScraper } from '../../api/scrapers/IndeedScraper';
 import { ApiJobRepository } from '../../api/ApiJobRepository';
 
 const API_URL = "http://localhost:8000";
+const PAGE_SIZE = 20;
 
 const repository = new ApiJobRepository(API_URL);
 const linkedInScraper = new LinkedInScraper();
@@ -17,9 +18,17 @@ const searchJobsQuery = new SearchJobsQuery(repository);
 const getStatsQuery = new GetStatsQuery(repository);
 const getAvailableScrapersQuery = new GetAvailableScrapersQuery([linkedInScraper, indeedScraper]);
 
+// Pagination state
+let currentPage = 1;
+let totalJobs = 0;
+
 document.addEventListener("DOMContentLoaded", () => {
   const btnScrapeLinkedIn = document.getElementById("scrape-linkedin") as HTMLButtonElement;
   const btnRefresh = document.getElementById("refresh") as HTMLButtonElement;
+  const btnLoadCache = document.getElementById("load-cache") as HTMLButtonElement;
+  const btnPrevPage = document.getElementById("prev-page") as HTMLButtonElement;
+  const btnNextPage = document.getElementById("next-page") as HTMLButtonElement;
+  const pageInfo = document.getElementById("page-info") as HTMLSpanElement;
   const status = document.getElementById("status") as HTMLDivElement;
   const results = document.getElementById("results") as HTMLDivElement;
   const searchInput = document.getElementById("search") as HTMLInputElement;
@@ -92,10 +101,41 @@ document.addEventListener("DOMContentLoaded", () => {
     await loadDynamicFilters();
   };
 
-  searchInput.addEventListener('input', debounce(() => searchJobsFromAPI(), 500));
-  locationInput.addEventListener('input', debounce(() => searchJobsFromAPI(), 500));
-  companyInput.addEventListener('input', debounce(() => searchJobsFromAPI(), 500));
-  sourceSelect.addEventListener('change', () => searchJobsFromAPI());
+  btnLoadCache.onclick = async () => {
+    await loadStoredOffers();
+  };
+
+  btnPrevPage.onclick = () => {
+    if (currentPage > 1) {
+      currentPage--;
+      searchJobsFromAPI();
+    }
+  };
+
+  btnNextPage.onclick = () => {
+    const totalPages = Math.ceil(totalJobs / PAGE_SIZE);
+    if (currentPage < totalPages) {
+      currentPage++;
+      searchJobsFromAPI();
+    }
+  };
+
+  searchInput.addEventListener('input', debounce(() => {
+    currentPage = 1;  // Reset to page 1 on filter change
+    searchJobsFromAPI();
+  }, 500));
+  locationInput.addEventListener('input', debounce(() => {
+    currentPage = 1;
+    searchJobsFromAPI();
+  }, 500));
+  companyInput.addEventListener('input', debounce(() => {
+    currentPage = 1;
+    searchJobsFromAPI();
+  }, 500));
+  sourceSelect.addEventListener('change', () => {
+    currentPage = 1;
+    searchJobsFromAPI();
+  });
 
   const resetFiltersBtn = document.createElement('button');
   resetFiltersBtn.textContent = 'Réinitialiser les filtres';
@@ -113,13 +153,15 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       status.textContent = "Recherche en cours...";
 
+      const offset = (currentPage - 1) * PAGE_SIZE;
+
       const filters = {
         search: searchInput.value.trim() || undefined,
         location: locationInput.value.trim() || undefined,
         company: companyInput.value.trim() || undefined,
         source: sourceSelect.value || undefined,
-        limit: 50,
-        offset: 0
+        limit: PAGE_SIZE,
+        offset: offset
       };
 
       const response = await fetch(`${API_URL}/api/jobs/search`, {
@@ -136,8 +178,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const jobs = await response.json();
 
+      // Get total count for pagination (fetch stats)
+      const statsResponse = await fetch(`${API_URL}/api/jobs/stats`);
+      if (statsResponse.ok) {
+        const stats = await statsResponse.json();
+        totalJobs = stats.total_jobs;
+      }
+
+      // Sync cache with first page if no filters applied
+      const hasFilters = filters.search || filters.location || filters.company || filters.source;
+      if (!hasFilters && currentPage === 1 && jobs.length > 0) {
+        await chrome.storage.local.set({
+          offers: jobs,
+          lastUpdate: new Date().toLocaleString("fr-FR"),
+          total: totalJobs
+        });
+        console.log(`[Popup] Synced ${jobs.length} jobs (page 1) from API to local cache`);
+      }
+
+      updatePaginationUI();
+
       if (jobs.length > 0) {
-        status.textContent = `${jobs.length} offres trouvées`;
+        const totalPages = Math.ceil(totalJobs / PAGE_SIZE);
+        status.textContent = `${jobs.length} offres (page ${currentPage}/${totalPages}) - Total: ${totalJobs}`;
         displayJobs(jobs);
       } else {
         status.textContent = "Aucune offre trouvée avec ces filtres";
@@ -148,6 +211,13 @@ document.addEventListener("DOMContentLoaded", () => {
       status.textContent = "API non disponible - chargement du cache local";
       loadStoredOffers();
     }
+  }
+
+  function updatePaginationUI() {
+    const totalPages = Math.ceil(totalJobs / PAGE_SIZE);
+    pageInfo.textContent = `Page ${currentPage}/${totalPages || 1}`;
+    btnPrevPage.disabled = currentPage <= 1;
+    btnNextPage.disabled = currentPage >= totalPages;
   }
 
   function displayJobs(jobs: any[]) {
@@ -242,6 +312,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  searchJobsFromAPI();
+  // Initial state - show welcome message
+  status.textContent = "Prêt ! Utilise les boutons ci-dessus pour charger ou scraper des offres.";
+
+  // Load dynamic filters only
   loadDynamicFilters();
 });

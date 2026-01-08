@@ -8,8 +8,11 @@
 </head>
 <body>
   <h2>Offer Search – Offres d'emploi</h2>
-  <button id="scrape-linkedin">Récupérer les offres</button>
-  <button id="refresh">Rafraîchir les offres maintenant</button>
+  <div class="button-group">
+    <button id="scrape-linkedin">Récupérer les offres</button>
+    <button id="load-cache" class="btn-secondary">Charger le cache local</button>
+    <button id="refresh" class="btn-secondary">Rafraîchir depuis l'API</button>
+  </div>
 
   <div class="filters">
     <input id="search" placeholder="Rechercher (poste, tech, description…)">
@@ -22,5 +25,11 @@
 
   <div id="status">Chargement…</div>
   <div id="results"></div>
+
+  <div class="pagination">
+    <button id="prev-page" class="btn-pagination">← Précédent</button>
+    <span id="page-info">Page 1/1</span>
+    <button id="next-page" class="btn-pagination">Suivant →</button>
+  </div>
 </body>
 </html>
