@@ -7,10 +7,11 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+# Copie depuis le dossier backend/ (contexte de build = racine du projet)
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY backend/ .
 
 # Railway injecte automatiquement la variable $PORT
 # Utilise --no-access-log pour réduire les logs en production

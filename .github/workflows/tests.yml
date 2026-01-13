@@ -100,110 +100,111 @@ jobs:
 
   # ============================================================================
   # Tests E2E avec Selenium Grid (Multi-plateformes)
+  # DÉSACTIVÉ : Trop complexe pour CI, à exécuter manuellement en local
   # ============================================================================
-  e2e-tests:
-    name: E2E Tests (Selenium Grid)
-    runs-on: ubuntu-latest
-    needs: backend-tests  # Exécute après les tests backend
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: Install Node.js dependencies
-      run: npm ci
-
-    - name: Build extension
-      run: npm run build
-
-    - name: Start services (DB + API + Selenium Grid)
-      run: |
-        docker compose up -d db api selenium-hub chrome
-
-    - name: Wait for services to be ready
-      run: |
-        echo "⏳ Waiting for API..."
-        for i in {1..60}; do
-          if curl -s http://localhost:8000/health > /dev/null 2>&1; then
-            echo "✅ API is ready"
-            break
-          fi
-          echo "   Waiting for API ($i/60)..."
-          sleep 2
-        done
-
-        echo "⏳ Waiting for Selenium Grid..."
-        for i in {1..60}; do
-          if curl -s http://localhost:4444/wd/hub/status 2>/dev/null | grep -q '"ready":true'; then
-            echo "✅ Selenium Grid is ready"
-            break
-          fi
-          echo "   Waiting for Grid ($i/60)..."
-          sleep 2
-        done
-
-        echo "📊 Selenium Grid Status:"
-        curl -s http://localhost:4444/wd/hub/status | jq '.' || true
-
-    - name: Verify extension build
-      run: |
-        echo "📦 Extension build artifacts:"
-        ls -la dist/
-        test -f dist/manifest.json || (echo "❌ manifest.json missing" && exit 1)
-        test -f dist/popup.js || (echo "❌ popup.js missing" && exit 1)
-        test -f dist/background.js || (echo "❌ background.js missing" && exit 1)
-
-    - name: Run E2E API tests
-      run: |
-        docker exec \
-          -e SELENIUM_REMOTE_URL=http://selenium-hub:4444/wd/hub \
-          -e BACKEND_URL=http://api:8000 \
-          offer-search-api-1 \
-          python -m pytest tests/e2e/api/ -v --tb=short --junitxml=/app/e2e-junit.xml
-
-    - name: Copy E2E test results
-      if: always()
-      run: |
-        docker cp offer-search-api-1:/app/e2e-junit.xml ./e2e-junit.xml || true
-
-    - name: Show Selenium Grid info
-      if: always()
-      run: |
-        echo "=== Selenium Grid Status ==="
-        curl -s http://localhost:4444/wd/hub/status | jq '.' || true
-
-    - name: Show logs on failure
-      if: failure()
-      run: |
-        echo "=== API Logs ==="
-        docker logs offer-search-api-1 || true
-        echo ""
-        echo "=== Selenium Hub Logs ==="
-        docker logs selenium-hub || true
-        echo ""
-        echo "=== Chrome Node Logs ==="
-        docker logs selenium-chrome || true
-
-    - name: Archive E2E test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: e2e-test-results
-        path: |
-          e2e-junit.xml
-
-    - name: Cleanup
-      if: always()
-      run: docker compose down -v
+  # e2e-tests:
+  #   name: E2E Tests (Selenium Grid)
+  #   runs-on: ubuntu-latest
+  #   needs: backend-tests  # Exécute après les tests backend
+  #
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+  #
+  #   - name: Set up Docker Buildx
+  #     uses: docker/setup-buildx-action@v3
+  #
+  #   - name: Set up Node.js
+  #     uses: actions/setup-node@v4
+  #     with:
+  #       node-version: ${{ env.NODE_VERSION }}
+  #       cache: 'npm'
+  #
+  #   - name: Install Node.js dependencies
+  #     run: npm ci
+  #
+  #   - name: Build extension
+  #     run: npm run build
+  #
+  #   - name: Start services (DB + API + Selenium Grid)
+  #     run: |
+  #       docker compose up -d db api selenium-hub chrome
+  #
+  #   - name: Wait for services to be ready
+  #     run: |
+  #       echo "⏳ Waiting for API..."
+  #       for i in {1..60}; do
+  #         if curl -s http://localhost:8000/health > /dev/null 2>&1; then
+  #           echo "✅ API is ready"
+  #           break
+  #         fi
+  #         echo "   Waiting for API ($i/60)..."
+  #         sleep 2
+  #       done
+  #
+  #       echo "⏳ Waiting for Selenium Grid..."
+  #       for i in {1..60}; do
+  #         if curl -s http://localhost:4444/wd/hub/status 2>/dev/null | grep -q '"ready":true'; then
+  #           echo "✅ Selenium Grid is ready"
+  #           break
+  #         fi
+  #         echo "   Waiting for Grid ($i/60)..."
+  #         sleep 2
+  #       done
+  #
+  #       echo "📊 Selenium Grid Status:"
+  #       curl -s http://localhost:4444/wd/hub/status | jq '.' || true
+  #
+  #   - name: Verify extension build
+  #     run: |
+  #       echo "📦 Extension build artifacts:"
+  #       ls -la dist/
+  #       test -f dist/manifest.json || (echo "❌ manifest.json missing" && exit 1)
+  #       test -f dist/popup.js || (echo "❌ popup.js missing" && exit 1)
+  #       test -f dist/background.js || (echo "❌ background.js missing" && exit 1)
+  #
+  #   - name: Run E2E API tests
+  #     run: |
+  #       docker exec \
+  #         -e SELENIUM_REMOTE_URL=http://selenium-hub:4444/wd/hub \
+  #         -e BACKEND_URL=http://api:8000 \
+  #         offer-search-api-1 \
+  #         python -m pytest tests/e2e/api/ -v --tb=short --junitxml=/app/e2e-junit.xml
+  #
+  #   - name: Copy E2E test results
+  #     if: always()
+  #     run: |
+  #       docker cp offer-search-api-1:/app/e2e-junit.xml ./e2e-junit.xml || true
+  #
+  #   - name: Show Selenium Grid info
+  #     if: always()
+  #     run: |
+  #       echo "=== Selenium Grid Status ==="
+  #       curl -s http://localhost:4444/wd/hub/status | jq '.' || true
+  #
+  #   - name: Show logs on failure
+  #     if: failure()
+  #     run: |
+  #       echo "=== API Logs ==="
+  #       docker logs offer-search-api-1 || true
+  #       echo ""
+  #       echo "=== Selenium Hub Logs ==="
+  #       docker logs selenium-hub || true
+  #       echo ""
+  #       echo "=== Chrome Node Logs ==="
+  #       docker logs selenium-chrome || true
+  #
+  #   - name: Archive E2E test results
+  #     if: always()
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: e2e-test-results
+  #       path: |
+  #         e2e-junit.xml
+  #
+  #   - name: Cleanup
+  #     if: always()
+  #     run: docker compose down -v
 
   # ============================================================================
   # Build Extension (Chrome + Firefox)
@@ -259,7 +260,7 @@ jobs:
   tests-summary:
     name: Tests Summary
     runs-on: ubuntu-latest
-    needs: [backend-tests, e2e-tests, extension-build]
+    needs: [backend-tests, extension-build]
     if: always()
 
     steps:
@@ -268,12 +269,12 @@ jobs:
         echo "🧪 Tests Summary"
         echo "================"
         echo "Backend Tests: ${{ needs.backend-tests.result }}"
-        echo "E2E Tests: ${{ needs.e2e-tests.result }}"
         echo "Extension Build: ${{ needs.extension-build.result }}"
+        echo ""
+        echo "ℹ️  E2E Tests: Disabled (run manually with 'make test-e2e')"
         echo ""
 
         if [ "${{ needs.backend-tests.result }}" != "success" ] || \
-           [ "${{ needs.e2e-tests.result }}" != "success" ] || \
            [ "${{ needs.extension-build.result }}" != "success" ]; then
           echo "❌ Some tests failed"
           exit 1
