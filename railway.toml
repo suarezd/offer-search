@@ -5,7 +5,8 @@ dockerfilePath = "backend/Dockerfile"
 # Le Dockerfile copie les fichiers depuis backend/
 
 [deploy]
-startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+# Ne pas définir startCommand ici - utiliser le CMD du Dockerfile à la place
+# Railway va utiliser automatiquement le CMD du Dockerfile
 healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
