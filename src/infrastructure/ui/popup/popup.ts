@@ -6,7 +6,7 @@ import { LinkedInScraper } from '../../api/scrapers/LinkedInScraper';
 import { IndeedScraper } from '../../api/scrapers/IndeedScraper';
 import { ApiJobRepository } from '../../api/ApiJobRepository';
 
-const API_URL = "http://localhost:8000";
+const API_URL = "https://offer-search-production.up.railway.app";
 const PAGE_SIZE = 20;
 
 const repository = new ApiJobRepository(API_URL);
