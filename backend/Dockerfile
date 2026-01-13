@@ -12,4 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Railway injecte automatiquement la variable $PORT
+# Utilise --no-access-log pour réduire les logs en production
+# Retire --reload car ce n'est pas nécessaire en production
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --no-access-log

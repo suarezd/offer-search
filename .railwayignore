@@ -1,0 +1,41 @@
+# Fichiers et dossiers à ignorer lors du déploiement sur Railway
+
+# Node modules (frontend non nécessaire pour le backend)
+node_modules/
+dist/
+src/
+public/
+*.log
+
+# Fichiers de développement
+.git/
+.github/
+.vscode/
+.idea/
+
+# Tests et documentation
+backend/tests/
+*.md
+Makefile
+
+# Environnement local
+.env
+.env.local
+*.env.local
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+
+# Docker local
+docker-compose.yml
+Dockerfile.dev
+
+# Autres
+.DS_Store
+*.swp
+*.swo

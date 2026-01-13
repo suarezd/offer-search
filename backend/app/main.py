@@ -17,9 +17,15 @@ async def startup_event():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    # Autorise uniquement les extensions Chrome et Firefox
+    # En production, Railway ajoutera automatiquement l'origine de votre domaine
+    allow_origins=[
+        "*",  # Pour le développement local
+        "chrome-extension://*",  # Extensions Chrome
+        "moz-extension://*",  # Extensions Firefox
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
