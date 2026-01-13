@@ -16,4 +16,5 @@ COPY backend/ .
 # Railway injecte automatiquement la variable $PORT
 # Utilise --no-access-log pour réduire les logs en production
 # Retire --reload car ce n'est pas nécessaire en production
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --no-access-log
+# Utiliser sh -c pour permettre la substitution de variables
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
